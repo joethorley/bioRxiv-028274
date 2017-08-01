@@ -1,3 +1,4 @@
+source("install-packages.R")
 # source("download-data.R") already downloaded to data
 
 source("input-data.R")

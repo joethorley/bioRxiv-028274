@@ -1,5 +1,7 @@
+[![DOI](https://zenodo.org/badge/99027969.svg)](https://zenodo.org/badge/latestdoi/99027969)
+
 # bioRxiv-028274
-R scripts for https://doi.org/10.1101/028274
+R analysis scripts and public data for https://doi.org/10.1101/028274
 
 In order to run, the scripts require the following data files
 

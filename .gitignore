@@ -5,4 +5,5 @@
 packrat/lib*/
 
 .DS_Store
-data/grouse
+/data/grouse
+/output

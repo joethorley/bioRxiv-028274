@@ -3,7 +3,6 @@ library(foreach)
 library(doParallel)
 library(ggplot2)
 library(ggsn)
-# load required packages and set options
 library(lubridate)
 library(magrittr)
 library(newdata)
@@ -25,9 +24,6 @@ rm(list = ls())
 graphics.off()
 
 source("functions.R")
-
-options(mb.quick = FALSE)
-options(mb.duration = dhours(1))
 
 if (getDoParWorkers() == 1) {
   message("registering 4 workers")
