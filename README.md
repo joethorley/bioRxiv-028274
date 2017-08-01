@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/99027969.svg)](https://zenodo.org/badge/latestdoi/99027969)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.837866.svg)](https://doi.org/10.5281/zenodo.837866)
 
 # bioRxiv-028274
 R analysis scripts and public data for https://doi.org/10.1101/028274
