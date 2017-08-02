@@ -3,7 +3,6 @@ source("header.R")
 dir.create("output/tables", recursive = TRUE, showWarnings = FALSE)
 
 analyses <- readRDS("output/lek/analyses.rds")
-leks <- readRDS("output/clean/leks.rds")
 
 glance <- map(analyses, glance) %>%
   bind_rows(.id = "code")
