@@ -1,6 +1,6 @@
 source("header.R")
 
-dir.create("output/tidy", recursive = TRUE, showWarnings = FALSE)
+dir.create("data/analysis", recursive = TRUE, showWarnings = FALSE)
 
 pdo <- readRDS("output/clean/pdo.rds")
 leks <- readRDS("output/clean/leks.rds")
@@ -20,31 +20,10 @@ for (dist in dists) {
     inner_join(st_fortify(leks), by = "Lek") %>%
     select(-x, -y) %>%
     left_join(counts, by = c("Lek", "Year")) %>%
-    inner_join(pdo, by = "Year")
+    inner_join(pdo, by = "Year") %>%
+    select(Lek, Group, Year, Males, Wells, PDO, Dayte)
+    # select required to ensure locational information not made publicly available
+  print(data)
 
-  for (lag_wells in lags) {
-    for (lag_pdo in lags) {
-
-      print(str_c("dist: ", dist, " lag_wells: ", lag_wells, " log_pdo: ", lag_pdo))
-
-      wells_lagged <- data %>%
-        mutate(Year = Year + lag_wells) %>%
-        select(Lek, Year, Wells) %>%
-        unique()
-
-      pdo_lagged <- data %>%
-        mutate(Year = Year + lag_pdo) %>%
-        select(Lek, Year, PDO) %>%
-        unique()
-
-      data_lagged <- data %>%
-        select(-Wells, -PDO) %>%
-        inner_join(wells_lagged, by = c("Lek", "Year")) %>%
-        inner_join(pdo_lagged, by = c("Lek", "Year")) %>%
-        filter(Year %in% first_year:last_year)
-
-      saveRDS(data_lagged, str_c("output/tidy/data",
-                          "_", dist, "_", lag_wells, "_", lag_pdo,".rds"))
-    }
-  }
+  saveRDS(data, str_c("data/analysis/data_", dist, ".rds"))
 }

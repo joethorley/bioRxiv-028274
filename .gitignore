@@ -2,8 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
-packrat/lib*/
 
-.DS_Store
 /data/grouse
 /output
