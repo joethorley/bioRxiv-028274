@@ -1,5 +1,10 @@
 source("header.R")
 
+dir.create("output/values", recursive = TRUE, showWarnings = FALSE)
+
+saveRDS(dists/1000, "output/values/dists.rds")
+saveRDS(min_leks, "output/values/min_leks.rds")
+
 dir.create("output/tables", recursive = TRUE, showWarnings = FALSE)
 
 analyses <- readRDS("output/lek/analyses.rds")
@@ -163,9 +168,21 @@ data %<>%
 
 data %<>% complete(nesting(Lek, Group), Year)
 
+add_ABC <- function(x) {
+  if (!length(x)) return(x)
+
+  letters <- letters[1:nlevels(x)] %>%
+    toupper() %>%
+    paste0("(", ., ")")
+  levels(x) %<>% paste(letters, .)
+  x
+}
+
+data$GroupABC <- add_ABC(data$Group)
+
 print(
   ggplot(data = data, aes(x = Year, y = Males)) +
-    facet_wrap(~Group) +
+    facet_wrap(~GroupABC) +
     geom_line(aes(group = Lek), alpha = 1/5) +
     scale_x_continuous("Year") +
     scale_y_continuous("Lek Count (males)", labels = comma) +
@@ -176,7 +193,7 @@ ggsave("output/plots/males-data-lek.png", width = 4, height = 4, dpi = dpi)
 
 print(
   ggplot(data = data, aes(x = Year, y = Wells/dist2area(dist))) +
-    facet_wrap(~Group) +
+    facet_wrap(~GroupABC) +
     geom_line(aes(group = Lek), alpha = 1/3) +
     scale_x_continuous("Year") +
     scale_y_continuous("Oil and Gas (well pads/km2)", labels = comma) +

@@ -153,9 +153,21 @@ data$fit <- exp(predict(analyses, new_data = data, term = "fit")$estimate)
 
 data %<>% complete(Year, Group)
 
+add_ABC <- function(x) {
+  if (!length(x)) return(x)
+
+  letters <- letters[1:nlevels(x)] %>%
+    toupper() %>%
+    paste0("(", ., ")")
+  levels(x) %<>% paste(letters, .)
+  x
+}
+
+data$GroupABC <- add_ABC(data$Group)
+
 print(
   ggplot(data = data, aes(x = Year, y = Males)) +
-    facet_wrap(~Group) +
+    facet_wrap(~GroupABC) +
     geom_line(aes(y = fit)) +
     geom_point() +
     scale_x_continuous("Year") +
@@ -167,7 +179,7 @@ ggsave("output/plots/males-data-group.png", width = 4, height = 4, dpi = dpi)
 
 print(
   ggplot(data = data, aes(x = Year, y = Wells/dist2area(dist))) +
-    facet_wrap(~Group) +
+    facet_wrap(~GroupABC) +
     geom_line() +
     scale_x_continuous("Year") +
     scale_y_continuous("Oil and Gas (well pads/km2)", labels = comma) +
