@@ -1,6 +1,7 @@
 source("header.R")
 
 dir.create("output/values", recursive = TRUE, showWarnings = FALSE)
+dir.create("output/plots", recursive = TRUE, showWarnings = FALSE)
 
 saveRDS(dists/1000, "output/values/dists.rds")
 saveRDS(min_leks, "output/values/min_leks.rds")
