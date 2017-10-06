@@ -7,10 +7,14 @@ leks <- readRDS("output/clean/leks.rds")
 counts <- readRDS("output/clean/counts.rds")
 wells <- readRDS("output/clean/wells.rds")
 
+wells %<>% st_buffer(set_units(60, "m"))
+
+# better to create annual layer of wells.......
+# then each lek get areal disturbance each year......
 for (dist in dists) {
 
-  data <- st_buffer(leks, dist) %>%
-    st_intersects(wells) %>%
+  data <- st_buffer(leks, set_units(dist, "m")) %>%
+    st_overlaps(wells) %>%
     map(function(x, wells) {slice(wells, x)}, wells = wells) %>%
     map(st_fortify) %>%
     map(accumulate_wells, first_year = first_year - max(lags),

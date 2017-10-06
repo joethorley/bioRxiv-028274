@@ -61,7 +61,6 @@ leks %<>% semi_join(counts, by = "Lek")
 
 # convert wells to a single sf (simple features object)
 wells %<>%
-  lapply(st_as_sf) %>%
   lapply(select, SpudDate = SPUD, Well = API_NUMBER) %>%
   reduce(rbind)
 

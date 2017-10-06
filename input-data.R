@@ -14,7 +14,7 @@ wyoming <- rbind(c(-111.05, 41), c(-111.05, 45), c(-104.05, 45), c(-104.05, 41),
 
 saveRDS(wyoming, "output/data/wyoming.rds")
 
-groups <- readOGR("data/groups")
+groups <- read_sf("data/groups")
 saveRDS(groups, "output/data/groups.rds")
 
 counts <- read_xlsx("data/grouse/SG Lek Observations 1948-2016.xlsx")
@@ -32,11 +32,11 @@ unzip("data/wells/conventional.zip", exdir = "output/data/conventional")
 unzip("data/wells/coalbed.zip", exdir = "output/data/coalbed")
 unzip("data/wells/injection.zip", exdir = "output/data/injection")
 
-conventional <- readOGR("output/data/conventional")
+conventional <- read_sf("output/data/conventional")
 saveRDS(conventional, "output/data/conventional.rds")
 
-coalbed <- readOGR("output/data/coalbed")
+coalbed <- read_sf("output/data/coalbed")
 saveRDS(coalbed, "output/data/coalbed.rds")
 
-injection <- readOGR("output/data/injection")
+injection <- read_sf("output/data/injection")
 saveRDS(injection, "output/data/injection.rds")
