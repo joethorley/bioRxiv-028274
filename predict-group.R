@@ -6,7 +6,7 @@ glance <- map(analyses, glance) %>%
   bind_rows(.id = "code")
 
 glance %<>% mutate(Distance = str_extract(code, "^[^_]+"),
-                   LagWells = str_replace(code, "(^[^_]+_)([^_]+)(_[^_]+$)", "\\2"),
+                   LagArea = str_replace(code, "(^[^_]+_)([^_]+)(_[^_]+$)", "\\2"),
                    LagPDO = str_extract(code, "[^_]+$"))
 
 glance %<>% arrange(IC)
@@ -32,22 +32,22 @@ print(pdo)
 
 write_csv(pdo, "output/tables/pdo-group.csv")
 
-wells <- glance %>%
-  group_by(LagWells) %>%
+area <- glance %>%
+  group_by(LagArea) %>%
   summarise(nmodels = n(),
             proportion = n()/nrow(glance),
             ICWt = sum(ICWt)) %>%
   ungroup() %>%
   arrange(-ICWt)
 
-print(wells)
+print(area)
 
-write_csv(wells, "output/tables/wells-group.csv")
+write_csv(area, "output/tables/area-group.csv")
 
-saveRDS(as.integer(wells$LagWells[1]), "output/values/wells_lag_group.rds")
+saveRDS(as.integer(area$LagArea[1]), "output/values/wells_lag_group.rds")
 saveRDS(as.integer(pdo$LagPDO[1]), "output/values/pdo_lag_group.rds")
 
-analysis <- analyses[[str_c(dist, wells$LagWells[1], pdo$LagPDO[1], sep = "_")]]
+analysis <- analyses[[str_c(dist, area$LagArea[1], pdo$LagPDO[1], sep = "_")]]
 
 data <- data_set(analysis)
 
@@ -71,14 +71,14 @@ print(coef)
 
 write_csv(coef, "output/tables/coef-group.csv")
 
-effect <- filter(coef, term %in% c("bPDO", "bWells")) %>%
+effect <- filter(coef, term %in% c("bPDO", "bArea")) %>%
   select(term, estimate, lower, upper) %>%
   map_if(is.numeric, exp_minus1) %>%
   as.data.frame(stringsAsFactors = FALSE) %>%
   as.tbl()
 
 effect$term %<>%
-  factor(levels = c("bWells", "bPDO"), labels = c("Well Pads", "PDO Index"))
+  factor(levels = c("bArea", "bPDO"), labels = c("Area", "PDO Index"))
 
 print(ggplot(data = effect, aes(x = term, y = estimate)) +
         geom_pointrange(aes(ymin = lower, ymax = upper)) +
@@ -90,7 +90,7 @@ print(ggplot(data = effect, aes(x = term, y = estimate)) +
 ggsave("output/plots/effect-group.png", width = 2.5, height = 2.5, dpi = dpi)
 
 saveRDS(sd(data$PDO), "output/values/sd-pdo-group.rds")
-saveRDS(sd(data$Area), "output/values/sd-wells-group.rds")
+saveRDS(sd(data$Area), "output/values/sd-area-group.rds")
 
 ref_data <- new_data(data) %>%
   mutate(Area = 0, PDO = 0)
@@ -116,17 +116,17 @@ print(ggplot(data = pdo, aes(x = PDO, y = estimate)) +
 
 ggsave("output/plots/pdo-group.png", width = 2.5, height = 2.5, dpi = dpi)
 
-wells <- new_data(data, "Area", ref = ref_data) %>%
+area <- new_data(data, "Area", ref = ref_data) %>%
   predict(analyses, new_data = ., term = "kappa", ref_data = ref_data)
 
-print(ggplot(data = wells, aes(x = Area, y = estimate)) +
+print(ggplot(data = area, aes(x = Area, y = estimate)) +
         geom_hline(yintercept = 0, linetype = "dotted") +
         geom_line() +
         scale_x_continuous("Areal Disturbance (%)", labels = percent) +
         scale_y_continuous("Carrying Capacity (%)", labels = percent) +
         expand_limits(y = c(-1, 1)))
 
-ggsave("output/plots/wells-group.png", width = 2.5, height = 2.5, dpi = dpi)
+ggsave("output/plots/area-group.png", width = 2.5, height = 2.5, dpi = dpi)
 
 annual <- new_data(data, "Annual", ref = ref_data) %>%
   predict(analyses, new_data = ., term = "kappa", ref_data = ref_data) %>%
@@ -186,4 +186,4 @@ print(
     expand_limits(y = 0)
 )
 
-ggsave("output/plots/wells-data-group.png", width = 4, height = 4, dpi = dpi)
+ggsave("output/plots/area-data-group.png", width = 4, height = 4, dpi = dpi)
