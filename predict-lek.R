@@ -14,7 +14,7 @@ glance <- map(analyses, glance) %>%
   bind_rows(.id = "code")
 
 glance %<>% mutate(Distance = str_extract(code, "^[^_]+"),
-                   LagWells = str_replace(code, "(^[^_]+_)([^_]+)(_[^_]+$)", "\\2"),
+                   LagArea = str_replace(code, "(^[^_]+_)([^_]+)(_[^_]+$)", "\\2"),
                    LagPDO = str_extract(code, "[^_]+$"))
 
 glance %<>% arrange(IC)
@@ -48,25 +48,25 @@ print(pdo)
 
 write_csv(pdo, "output/tables/pdo-lek.csv")
 
-wells <- glance %>%
-  group_by(LagWells) %>%
+area <- glance %>%
+  group_by(LagArea) %>%
   summarise(nmodels = n(),
             proportion = n()/nrow(glance),
             ICWt = sum(ICWt)) %>%
   ungroup() %>%
   arrange(-ICWt)
 
-print(wells)
+print(area)
 
-write_csv(wells, "output/tables/wells-lek.csv")
+write_csv(area, "output/tables/area-lek.csv")
 
 dist <- as.numeric(distance$Distance[1])
 
 saveRDS(dist, "output/values/dist.rds")
-saveRDS(as.integer(wells$LagWells[1]), "output/values/wells_lag_lek.rds")
+saveRDS(as.integer(area$LagArea[1]), "output/values/area_lag_lek.rds")
 saveRDS(as.integer(pdo$LagPDO[1]), "output/values/pdo_lag_lek.rds")
 
-analysis <- analyses[[str_c(distance$Distance[1], wells$LagWells[1], pdo$LagPDO[1], sep = "_")]]
+analysis <- analyses[[str_c(distance$Distance[1], area$LagArea[1], pdo$LagPDO[1], sep = "_")]]
 
 data <- data_set(analysis)
 
@@ -90,14 +90,14 @@ print(coef)
 
 write_csv(coef, "output/tables/coef-lek.csv")
 
-effect <- filter(coef, term %in% c("bPDO", "bWells")) %>%
+effect <- filter(coef, term %in% c("bPDO", "bArea")) %>%
   select(term, estimate, lower, upper) %>%
   map_if(is.numeric, exp_minus1) %>%
   as.data.frame(stringsAsFactors = FALSE) %>%
   as.tbl()
 
 effect$term %<>%
-  factor(levels = c("bWells", "bPDO"), labels = c("Well Pads", "PDO Index"))
+  factor(levels = c("bArea", "bPDO"), labels = c("Area", "PDO Index"))
 
 print(ggplot(data = effect, aes(x = term, y = estimate)) +
         geom_pointrange(aes(ymin = lower, ymax = upper)) +
@@ -113,10 +113,10 @@ saveRDS(diff(range(data$Year)) + 1L, "output/values/years-lek.rds")
 saveRDS(min(data$Year), "output/values/first-year-lek.rds")
 saveRDS(max(data$Year), "output/values/last-year-lek.rds")
 saveRDS(sd(data$PDO), "output/values/sd-pdo-lek.rds")
-saveRDS(sd(data$Wells/dist2area(dist)), "output/values/sd-wells-lek.rds")
+saveRDS(sd(data$Area), "output/values/sd-area-lek.rds")
 
 ref_data <- new_data(data) %>%
-  mutate(Wells = 0, PDO = 0)
+  mutate(Area = 0, PDO = 0)
 
 pdo <- new_data(data, "PDO", ref = ref_data) %>%
   predict(analyses, new_data = ., ref_data = ref_data)
@@ -130,17 +130,17 @@ print(ggplot(data = pdo, aes(x = PDO, y = estimate)) +
 
 ggsave("output/plots/pdo-lek.png", width = 2.5, height = 2.5, dpi = dpi)
 
-wells <- new_data(data, "Wells", ref = ref_data) %>%
+area <- new_data(data, "Area", ref = ref_data) %>%
   predict(analyses, new_data = ., ref_data = ref_data)
 
-print(ggplot(data = wells, aes(x = Wells/dist2area(dist), y = estimate)) +
+print(ggplot(data = area, aes(x = Area, y = estimate)) +
         geom_hline(yintercept = 0, linetype = "dotted") +
         geom_line() +
-        scale_x_continuous("Oil and Gas (well pads/km2)") +
+        scale_x_continuous("Oil and Gas Areal Disturbance (%)", labels = percent) +
         scale_y_continuous("Lek Count (%)", labels = percent) +
         expand_limits(y = c(-1,1)))
 
-ggsave("output/plots/wells-lek.png", width = 2.5, height = 2.5, dpi = dpi)
+ggsave("output/plots/area-lek.png", width = 2.5, height = 2.5, dpi = dpi)
 
 annual <- new_data(data, "Annual", ref = ref_data) %>%
   predict(analyses, new_data = ., ref_data = ref_data) %>%
@@ -164,7 +164,7 @@ print(ggplot(data = lek, aes(x = estimate)) +
 
 data %<>%
   group_by(Lek, Year, Group) %>%
-  summarise(Males = mean(Males), Wells = first(Wells)) %>%
+  summarise(Males = mean(Males), Area = first(Area)) %>%
   ungroup()
 
 data %<>% complete(nesting(Lek, Group), Year)
@@ -193,12 +193,12 @@ print(
 ggsave("output/plots/males-data-lek.png", width = 4, height = 4, dpi = dpi)
 
 print(
-  ggplot(data = data, aes(x = Year, y = Wells/dist2area(dist))) +
+  ggplot(data = data, aes(x = Year, y = Area)) +
     facet_wrap(~GroupABC) +
     geom_line(aes(group = Lek), alpha = 1/3) +
     scale_x_continuous("Year") +
-    scale_y_continuous("Oil and Gas (well pads/km2)", labels = comma) +
+    scale_y_continuous("Areal Disturbance (%)", labels = percent) +
     expand_limits(y = 0)
-)
+) 
 
-ggsave("output/plots/wells-data-lek.png", width = 4, height = 4, dpi = dpi)
+ggsave("output/plots/area-data-lek.png", width = 4, height = 4, dpi = dpi)

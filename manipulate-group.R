@@ -11,13 +11,13 @@ data <- lapply(files, readRDS)
 process_data <- function(x) {
   x %<>%
     group_by(Lek, Year, Group) %>%
-    summarise(Males = mean(Males), Wells = first(Wells), PDO = first(PDO)) %>%
+    summarise(Males = mean(Males), Area = first(Area), PDO = first(PDO)) %>%
     ungroup() %>%
     group_by(Group, Year) %>%
     summarise(
       Leks = sum(!is.na(Males)),
       Males = mean(Males, na.rm = TRUE),
-      Wells = mean(Wells),
+      Area = mean(Area),
       PDO = first(PDO)) %>%
     ungroup() %>%
     filter(Leks >= min_leks) %>%

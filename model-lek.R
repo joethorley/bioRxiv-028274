@@ -5,7 +5,7 @@ template<class Type>
 Type objective_function<Type>::operator() () {
 
 DATA_VECTOR(Males);
-DATA_VECTOR(Wells);
+DATA_VECTOR(Area);
 DATA_VECTOR(PDO);
 DATA_FACTOR(Annual);
 DATA_INTEGER(nAnnual);
@@ -13,7 +13,7 @@ DATA_FACTOR(Lek);
 DATA_INTEGER(nLek);
 
 PARAMETER(bIntercept);
-PARAMETER(bWells);
+PARAMETER(bArea);
 PARAMETER(bPDO);
 PARAMETER_VECTOR(bAnnual);
 PARAMETER_VECTOR(bLek);
@@ -47,7 +47,7 @@ for(i = 0; i < nLek; i++){
 
 for(i = 0; i < nObs; i++){
   nll -= dnorm(bDispersion(i), Type(0), Type(1), true);
-  eMales(i) = exp(bIntercept + bWells * Wells(i) + bPDO * PDO(i) + bLek(Lek(i)) + bAnnual(Annual(i)));
+  eMales(i) = exp(bIntercept + bArea * Area(i) + bPDO * PDO(i) + bLek(Lek(i)) + bAnnual(Annual(i)));
   nll -= dpois(Males(i), eMales(i) * eDispersion(i), true);
 }
 return nll;
@@ -56,7 +56,7 @@ gen_inits = function(data) {
   inits <- list()
   inits$bIntercept = 0
   inits$bPDO = 0
-  inits$bWells = 0
+  inits$bArea = 0
   inits$log_sAnnual = 0
   inits$log_sLek = 0
   inits$log_sDispersion = 0
@@ -64,13 +64,13 @@ gen_inits = function(data) {
 },
 new_expr = "
 for(i in 1:length(Males)) {
-  log(prediction[i]) <- bIntercept + bWells * Wells[i] + bPDO * PDO[i] + bAnnual[Annual[i]] + bLek[Lek[i]]
+  log(prediction[i]) <- bIntercept + bArea * Area[i] + bPDO * PDO[i] + bAnnual[Annual[i]] + bLek[Lek[i]]
 }
   fit <- prediction
   residual <- (Males - fit) / sqrt(fit + (fit * exp(log_sDispersion))^2)
 ",
 random_effects = list(bAnnual = "Annual", bLek = "Lek", bDispersion = "Dispersion"),
-select_data = list("Males" = 1L, "PDO*" = 1, "Wells*" = 1,
+select_data = list("Males" = 1L, "PDO*" = 1, "Area*" = 1,
                    Annual = factor(1), Lek = factor(1), Dispersion = factor(1)),
-  drops = list("bPDO", "bWells")
+  drops = list("bPDO", "bArea")
 )

@@ -90,10 +90,10 @@ print(ggplot(data = effect, aes(x = term, y = estimate)) +
 ggsave("output/plots/effect-group.png", width = 2.5, height = 2.5, dpi = dpi)
 
 saveRDS(sd(data$PDO), "output/values/sd-pdo-group.rds")
-saveRDS(sd(data$Wells/dist2area(dist)), "output/values/sd-wells-group.rds")
+saveRDS(sd(data$Area), "output/values/sd-wells-group.rds")
 
 ref_data <- new_data(data) %>%
-  mutate(Wells = 0, PDO = 0)
+  mutate(Area = 0, PDO = 0)
 
 males <- new_data(data, "Males", ref = ref_data) %>%
   predict(analyses, new_data = .)
@@ -116,13 +116,13 @@ print(ggplot(data = pdo, aes(x = PDO, y = estimate)) +
 
 ggsave("output/plots/pdo-group.png", width = 2.5, height = 2.5, dpi = dpi)
 
-wells <- new_data(data, "Wells", ref = ref_data) %>%
+wells <- new_data(data, "Area", ref = ref_data) %>%
   predict(analyses, new_data = ., term = "kappa", ref_data = ref_data)
 
-print(ggplot(data = wells, aes(x = Wells/dist2area(dist), y = estimate)) +
+print(ggplot(data = wells, aes(x = Area, y = estimate)) +
         geom_hline(yintercept = 0, linetype = "dotted") +
         geom_line() +
-        scale_x_continuous("Oil and Gas (well pads/km2)") +
+        scale_x_continuous("Areal Disturbance (%)", labels = percent) +
         scale_y_continuous("Carrying Capacity (%)", labels = percent) +
         expand_limits(y = c(-1, 1)))
 
@@ -178,11 +178,11 @@ print(
 ggsave("output/plots/males-data-group.png", width = 4, height = 4, dpi = dpi)
 
 print(
-  ggplot(data = data, aes(x = Year, y = Wells/dist2area(dist))) +
+  ggplot(data = data, aes(x = Year, y = Area)) +
     facet_wrap(~GroupABC) +
     geom_line() +
     scale_x_continuous("Year") +
-    scale_y_continuous("Oil and Gas (well pads/km2)", labels = comma) +
+    scale_y_continuous("Areal Disturbance (%)", labels = percent) +
     expand_limits(y = 0)
 )
 

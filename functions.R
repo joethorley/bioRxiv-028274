@@ -60,6 +60,6 @@ trim_males <- function(y, min_years, last_year) {
   y
 }
 
-dist2area <- function(x) (x/1000)^2 * pi
+st_intersection_switch <- function(x,y) st_intersection(y,x)
 
 exp_minus1 <- function(x) exp(x) - 1

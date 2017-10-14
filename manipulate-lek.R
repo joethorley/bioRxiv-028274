@@ -9,7 +9,7 @@ data <- lapply(files, readRDS)
 process_data <- function(x) {
   x %<>%
     group_by(Lek, Year, Group) %>%
-    summarise(Males = as.integer(round(mean(Males))), Wells = first(Wells), PDO = first(PDO)) %>%
+    summarise(Males = as.integer(round(mean(Males))), Area = first(Area), PDO = first(PDO)) %>%
     ungroup() %>%
     na.omit() %>%
     mutate(
