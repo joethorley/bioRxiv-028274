@@ -44,7 +44,7 @@ print(area)
 
 write_csv(area, "output/tables/area-group.csv")
 
-saveRDS(as.integer(area$LagArea[1]), "output/values/wells_lag_group.rds")
+saveRDS(as.integer(area$LagArea[1]), "output/values/area_lag_group.rds")
 saveRDS(as.integer(pdo$LagPDO[1]), "output/values/pdo_lag_group.rds")
 
 analysis <- analyses[[str_c(dist, area$LagArea[1], pdo$LagPDO[1], sep = "_")]]
