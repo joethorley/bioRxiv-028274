@@ -1,8 +1,6 @@
 # input data to R and save as .rds files
 source("header.R")
 
-dir.create("output/data", showWarnings = FALSE, recursive = TRUE)
-
 pdo <- rpdo::pdo
 
 saveRDS(pdo, "output/data/pdo.rds")

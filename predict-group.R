@@ -66,6 +66,8 @@ models <- model(analysis) %>%
 
 analyses <- analyse(models, data = data)
 
+saveRDS(analyses[["full"]], "output/group/analysis.rds")
+
 coef <- coef(analyses)
 print(coef)
 

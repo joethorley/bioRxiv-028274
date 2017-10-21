@@ -1,7 +1,5 @@
 source("header.R")
 
-dir.create("output/group", recursive = TRUE, showWarnings = FALSE)
-
 dist <- readRDS("output/values/dist.rds")
 
 files <- list.files("output/tidy", pattern = str_c("^data_", dist, "_"), full.names = TRUE)

@@ -1,7 +1,5 @@
 source("header.R")
 
-dir.create("data/wells", showWarnings = FALSE, recursive = TRUE)
-
 # download well data
 
 conventional <- "http://pathfinder.geospatialhub.org/datasets/97bf34ef9d6b4c1ea2d8a543fa6c56d9_1.zip"

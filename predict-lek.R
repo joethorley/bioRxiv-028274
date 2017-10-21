@@ -1,12 +1,7 @@
 source("header.R")
 
-dir.create("output/values", recursive = TRUE, showWarnings = FALSE)
-dir.create("output/plots", recursive = TRUE, showWarnings = FALSE)
-
 saveRDS(dists/1000, "output/values/dists.rds")
 saveRDS(min_leks, "output/values/min_leks.rds")
-
-dir.create("output/tables", recursive = TRUE, showWarnings = FALSE)
 
 analyses <- readRDS("output/lek/analyses.rds")
 
@@ -84,6 +79,8 @@ models <- model(analysis) %>%
   make_all_models()
 
 analyses <- analyse(models, data = data)
+
+saveRDS(analyses[["full"]], "output/lek/analysis.rds")
 
 coef <- coef(analyses)
 print(coef)
@@ -199,6 +196,6 @@ print(
     scale_x_continuous("Year") +
     scale_y_continuous("Areal Disturbance (%)", labels = percent) +
     expand_limits(y = 0)
-) 
+)
 
 ggsave("output/plots/area-data-lek.png", width = 4, height = 4, dpi = dpi)

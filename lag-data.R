@@ -1,7 +1,5 @@
 source("header.R")
 
-dir.create("output/tidy", recursive = TRUE, showWarnings = FALSE)
-
 for (dist in dists) {
 
   data <- readRDS(str_c("data/analysis/data_", dist, ".rds"))

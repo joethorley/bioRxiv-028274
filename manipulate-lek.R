@@ -1,7 +1,5 @@
 source("header.R")
 
-dir.create("output/lek", recursive = TRUE, showWarnings = FALSE)
-
 files <- list.files("output/tidy", full.names = TRUE)
 
 data <- lapply(files, readRDS)

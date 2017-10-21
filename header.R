@@ -20,6 +20,7 @@ library(sf)
 library(stringr)
 library(tidyr)
 library(tmbr)
+library(smbr)
 
 rm(list = ls())
 graphics.off()
@@ -29,8 +30,9 @@ source("functions.R")
 if (getDoParWorkers() == 1) {
   message("registering 4 workers")
   registerDoParallel(4)
-  options(mb.parallel = TRUE)
 }
+
+set_analysis_mode("report")
 
 theme_set(theme_grey(base_size = 10))
 theme_replace(axis.ticks        = element_line(colour = "black"),
@@ -55,3 +57,15 @@ lags <- 1:4
 min_leks <- 25
 min_years <- 10
 
+dir.create("output/values", recursive = TRUE, showWarnings = FALSE)
+dir.create("output/plots", recursive = TRUE, showWarnings = FALSE)
+dir.create("output/tables", recursive = TRUE, showWarnings = FALSE)
+dir.create("output/data", showWarnings = FALSE, recursive = TRUE)
+dir.create("output/tidy", recursive = TRUE, showWarnings = FALSE)
+dir.create("output/clean", showWarnings = FALSE, recursive = TRUE)
+dir.create("output/group", recursive = TRUE, showWarnings = FALSE)
+dir.create("output/lek", recursive = TRUE, showWarnings = FALSE)
+dir.create("output/plots", recursive = TRUE, showWarnings = FALSE)
+dir.create("data/analysis", recursive = TRUE, showWarnings = FALSE)
+dir.create("data/wells", showWarnings = FALSE, recursive = TRUE)
+dir.create("output/tables", recursive = TRUE, showWarnings = FALSE)

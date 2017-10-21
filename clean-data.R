@@ -1,8 +1,6 @@
 # read all data .rds files into R and clean up
 source("header.R")
 
-dir.create("output/clean", showWarnings = FALSE, recursive = TRUE)
-
 pdo <- readRDS("output/data/pdo.rds")
 wyoming <- readRDS("output/data/wyoming.rds")
 groups <- readRDS("output/data/groups.rds")

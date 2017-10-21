@@ -1,7 +1,5 @@
 source("header.R")
 
-dir.create("output/plots", recursive = TRUE, showWarnings = FALSE)
-
 pdo <- readRDS("output/clean/pdo.rds")
 leks <- readRDS("output/clean/leks.rds")
 wells <- readRDS("output/clean/wells.rds")

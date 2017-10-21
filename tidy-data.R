@@ -1,7 +1,5 @@
 source("header.R")
 
-dir.create("data/analysis", recursive = TRUE, showWarnings = FALSE)
-
 pdo <- readRDS("output/clean/pdo.rds")
 leks <- readRDS("output/clean/leks.rds")
 counts <- readRDS("output/clean/counts.rds")
