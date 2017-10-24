@@ -80,8 +80,6 @@ models <- model(analysis) %>%
 
 analyses <- analyse(models, data = data)
 
-saveRDS(analyses[["full"]], "output/lek/analysis.rds")
-
 coef <- coef(analyses)
 print(coef)
 
@@ -199,3 +197,73 @@ print(
 )
 
 ggsave("output/plots/area-data-lek.png", width = 4, height = 4, dpi = dpi)
+
+####
+
+data <- readRDS(paste0("data/analysis/data_", dist, ".rds"))
+
+lag_area <- readRDS("output/values/area_lag_lek.rds")
+lag_pdo <- readRDS("output/values/pdo_lag_lek.rds")
+
+data %<>% select(Lek, Group, Year, Area, PDO) %>%
+  distinct()
+
+area_lagged <- data %>%
+  mutate(Year = Year + lag_area) %>%
+  select(Lek, Year, Area) %>%
+  unique()
+
+pdo_lagged <- data %>%
+  mutate(Year = Year + lag_pdo) %>%
+  select(Lek, Year, PDO) %>%
+  unique()
+
+data %<>%
+  select(-Area, -PDO) %>%
+  inner_join(area_lagged, by = c("Lek", "Year")) %>%
+  inner_join(pdo_lagged, by = c("Lek", "Year")) %>%
+  filter(Year %in% first_year:last_year)
+
+data_set <- data_set(analyses[["full"]]) %>%
+  new_data()
+
+data %<>% mutate(Annual = factor(Year, levels = levels(data_set$Annual)),
+                 Group = factor(Group, levels = levels(data_set$Group)),
+                 Lek = factor(Lek, levels = levels(data_set$Lek)),
+                 Males = 1L,
+                 Dispersion = data_set$Dispersion)
+
+data$PDO <- 0
+
+with <- derive_data(analyses, new_data = data)
+
+with %<>% group_by(Annual, Group) %>%
+  summarise() %>%
+  ungroup()
+
+without <- derive_data(analyses, new_data = mutate(data, Area = 0))
+
+without %<>% group_by(Annual, Group) %>%
+  summarise() %>%
+  ungroup()
+
+loss <- combine_values(with, without, by = c("Annual", "Group"), fun = function(x) (x[1] - x[2]) / x[2])
+
+saveRDS(loss, "output/lek/loss.rds")
+
+loss %<>% coef()
+
+loss$Year <- loss$Annual %>% as.character() %>% as.integer()
+
+loss$GroupABC <- add_ABC(loss$Group)
+
+print(ggplot(data = loss, aes(x = Year, y = estimate)) +
+        facet_wrap(~GroupABC) +
+        geom_line() +
+        geom_line(aes(y = lower), linetype = "dotted") +
+        geom_line(aes(y = upper), linetype = "dotted") +
+        scale_x_continuous("Year") +
+        scale_y_continuous("Loss (%)", labels = percent) +
+        expand_limits(y = 0))
+
+ggsave("output/plots/loss-lek.png", width = 4, height = 4, dpi = dpi)

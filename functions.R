@@ -63,3 +63,14 @@ trim_males <- function(y, min_years, last_year) {
 st_intersection_switch <- function(x,y) st_intersection(y,x)
 
 exp_minus1 <- function(x) exp(x) - 1
+
+add_ABC <- function(x) {
+  if (!length(x)) return(x)
+
+  letters <- letters[1:nlevels(x)] %>%
+    toupper() %>%
+    paste0("(", ., ")")
+  levels(x) %<>% paste(letters, .)
+  x
+}
+

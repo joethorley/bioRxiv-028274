@@ -66,8 +66,6 @@ models <- model(analysis) %>%
 
 analyses <- analyse(models, data = data)
 
-saveRDS(analyses[["full"]], "output/group/analysis.rds")
-
 coef <- coef(analyses)
 print(coef)
 
@@ -155,16 +153,6 @@ data$fit <- exp(predict(analyses, new_data = data, term = "fit")$estimate)
 
 data %<>% complete(Year, Group)
 
-add_ABC <- function(x) {
-  if (!length(x)) return(x)
-
-  letters <- letters[1:nlevels(x)] %>%
-    toupper() %>%
-    paste0("(", ., ")")
-  levels(x) %<>% paste(letters, .)
-  x
-}
-
 data$GroupABC <- add_ABC(data$Group)
 
 print(
@@ -189,3 +177,33 @@ print(
 )
 
 ggsave("output/plots/area-data-group.png", width = 4, height = 4, dpi = dpi)
+
+data <- data_set(analyses[["full"]])
+
+data_set <- new_data(data)
+
+data %<>% mutate(PDO = 0,
+                 Annual = data_set$Annual)
+
+with <- derive_data(analyses, new_data = data, term = "kappa")
+
+without <- derive_data(analyses, new_data = mutate(data, Area = 0), term = "kappa")
+
+loss <- combine_values(with, without, by = c("Group", "Year"), fun = function(x) (x[1] - x[2]) / x[2])
+
+saveRDS(loss, "output/group/loss.rds")
+
+loss %<>% coef()
+
+loss$GroupABC <- add_ABC(loss$Group)
+
+print(ggplot(data = loss, aes(x = Year, y = estimate)) +
+        facet_wrap(~GroupABC) +
+        geom_line() +
+        geom_line(aes(y = lower), linetype = "dotted") +
+        geom_line(aes(y = upper), linetype = "dotted") +
+        scale_x_continuous("Year") +
+        scale_y_continuous("Loss (%)", labels = percent) +
+        expand_limits(y = 0))
+
+ggsave("output/plots/loss-group.png", width = 4, height = 4, dpi = dpi)
