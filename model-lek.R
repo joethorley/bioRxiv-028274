@@ -11,27 +11,23 @@ DATA_FACTOR(Annual);
 DATA_INTEGER(nAnnual);
 DATA_FACTOR(Lek);
 DATA_INTEGER(nLek);
+DATA_INTEGER(nObs);
 
 PARAMETER(bIntercept);
 PARAMETER(bArea);
 PARAMETER(bPDO);
 PARAMETER_VECTOR(bAnnual);
 PARAMETER_VECTOR(bLek);
-PARAMETER_VECTOR(bDispersion);
 
 PARAMETER(log_sAnnual);
 PARAMETER(log_sLek);
-PARAMETER(log_sDispersion);
+PARAMETER(log_bPhi);
 
 Type sAnnual = exp(log_sAnnual);
 Type sLek = exp(log_sLek);
-Type sDispersion = exp(log_sDispersion);
+Type bPhi = exp(log_bPhi);
 
 vector<Type> eMales = Males;
-vector<Type> eNormDispersion = pnorm(bDispersion, Type(0), Type(1));
-vector<Type> eDispersion = qgamma(eNormDispersion, pow(sDispersion, -2), pow(sDispersion, 2));
-
-int nObs = Males.size();
 
 int i;
 
@@ -46,20 +42,19 @@ for(i = 0; i < nLek; i++){
 }
 
 for(i = 0; i < nObs; i++){
-  nll -= dnorm(bDispersion(i), Type(0), Type(1), true);
   eMales(i) = exp(bIntercept + bArea * Area(i) + bPDO * PDO(i) + bLek(Lek(i)) + bAnnual(Annual(i)));
-  nll -= dpois(Males(i), eMales(i) * eDispersion(i), true);
+  nll -= dnbinom2(Males(i), eMales(i), eMales(i) + bPhi * pow(eMales(i),2), true);
 }
 return nll;
 }",
 gen_inits = function(data) {
   inits <- list()
-  inits$bIntercept = 0
+  inits$bIntercept = 2.5
   inits$bPDO = 0
   inits$bArea = 0
-  inits$log_sAnnual = 0
+  inits$log_sAnnual = -1
   inits$log_sLek = 0
-  inits$log_sDispersion = 0
+  inits$log_bPhi = -1
   inits
 },
 new_expr = "
@@ -67,10 +62,10 @@ for(i in 1:length(Males)) {
   log(prediction[i]) <- bIntercept + bArea * Area[i] + bPDO * PDO[i] + bAnnual[Annual[i]] + bLek[Lek[i]]
 }
   fit <- prediction
-  residual <- (Males - fit) / sqrt(fit + (fit * exp(log_sDispersion))^2)
+  residual <- (Males - fit) / sqrt(fit + exp(log_bPhi) * fit^2)
 ",
-random_effects = list(bAnnual = "Annual", bLek = "Lek", bDispersion = "Dispersion"),
+random_effects = list(bAnnual = "Annual", bLek = "Lek"),
 select_data = list("Males" = 1L, "PDO*" = 1, "Area*" = 1,
-                   Annual = factor(1), Lek = factor(1), Dispersion = factor(1)),
+                   Annual = factor(1), Lek = factor(1)),
   drops = list("bPDO", "bArea")
 )

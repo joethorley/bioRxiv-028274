@@ -5,8 +5,6 @@ analysis <- readRDS("output/lek/analysis-bayesian.rds")
 data <- data_set(analysis)
 
 dist <- readRDS("output/values/dist.rds")
-warning("need to get dist for real")
-dist <- 3200
 
 coef <- coef(analysis)
 print(coef)
@@ -28,8 +26,6 @@ print(ggplot(data = effect, aes(x = term, y = estimate)) +
         scale_x_discrete("Predictor") +
         scale_y_continuous("Change in Lek Count (%)", labels = percent) +
         expand_limits(y = c(0.33,-0.33)))
-
-ggsave("output/plots/effect-lek.png", width = 2.5, height = 2.5, dpi = dpi)
 
 saveRDS(nlevels(data$Lek), "output/values/leks-lek.rds")
 saveRDS(diff(range(data$Year)) + 1L, "output/values/years-lek.rds")
@@ -75,8 +71,7 @@ annual <- new_data(data, "Annual", ref = ref_data) %>%
 
 print(ggplot(data = annual, aes(x = Year, y = estimate)) +
         geom_hline(yintercept = 0, linetype = "dotted") +
-        geom_line() +
-        geom_point() +
+        geom_pointrange(aes(ymin = lower, ymax = upper)) +
         scale_x_continuous("Year") +
         scale_y_continuous("Males (%)", labels = percent) +
         expand_limits(y = c(-1, 1)))
@@ -167,8 +162,7 @@ data_set <- data_set(analysis) %>%
 data %<>% mutate(Annual = factor(Year, levels = levels(data_set$Annual)),
                  Group = factor(Group, levels = levels(data_set$Group)),
                  Lek = factor(Lek, levels = levels(data_set$Lek)),
-                 Males = 1L,
-                 Dispersion = factor(data_set$Dispersion, levels = levels(data_set$Dispersion)))
+                 Males = 1L)
 
 data$PDO <- 0
 
@@ -185,6 +179,8 @@ without %<>% group_by(Annual, Group) %>%
   ungroup()
 
 loss <- combine_values(with, without, by = c("Annual", "Group"), fun = function(x) (x[1] - x[2]) / x[2])
+
+saveRDS(loss, "output/lek/loss.rds")
 
 loss %<>% coef()
 

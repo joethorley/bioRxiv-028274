@@ -5,8 +5,6 @@ analysis <- readRDS("output/group/analysis-bayesian.rds")
 data <- data_set(analysis)
 
 dist <- readRDS("output/values/dist.rds")
-warning("need to get dist for real")
-dist <- 3200
 
 coef <- coef(analysis)
 print(coef)
@@ -46,7 +44,7 @@ print(ggplot(data = males, aes(x = Males, y = exp(estimate))) +
         geom_line(aes(y = exp(upper)), linetype = "dotted") +
         geom_hline(yintercept = 1, linetype = "dotted") +
         scale_x_continuous("Sage-Grouse (males/lek)") +
-        scale_y_continuous("Annual Population Change (%)", labels = percent))
+        scale_y_continuous("Annual Population Change (%)"))
 
 pdo <- new_data(data, "PDO", ref = ref_data) %>%
   predict(analysis, new_data = ., term = "kappa", ref_data = ref_data)
@@ -97,35 +95,6 @@ print(ggplot(data = group, aes(x = Group, y = estimate)) +
         scale_y_continuous("Carrying Capacity (males/lek)") +
         expand_limits(y = 0))
 
-data$fit <- exp(predict(analysis, new_data = data, term = "fit")$estimate)
-
-data %<>% complete(Year, Group)
-
-data$GroupABC <- add_ABC(data$Group)
-
-print(
-  ggplot(data = data, aes(x = Year, y = Males)) +
-    facet_wrap(~GroupABC) +
-    geom_line(aes(y = fit)) +
-    geom_point() +
-    scale_x_continuous("Year") +
-    scale_y_continuous("Sage-Grouse (males/lek)", labels = comma) +
-    expand_limits(y = 0)
-)
-
-ggsave("output/plots/males-data-group.png", width = 4, height = 4, dpi = dpi)
-
-print(
-  ggplot(data = data, aes(x = Year, y = Area)) +
-    facet_wrap(~GroupABC) +
-    geom_line() +
-    scale_x_continuous("Year") +
-    scale_y_continuous("Areal Disturbance (%)", labels = percent) +
-    expand_limits(y = 0)
-)
-
-ggsave("output/plots/area-data-group.png", width = 4, height = 4, dpi = dpi)
-
 data <- data_set(analysis)
 
 data_set <- new_data(data)
@@ -137,6 +106,8 @@ with <- derive_data(analysis, new_data = data, term = "kappa")
 without <- derive_data(analysis, new_data = mutate(data, Area = 0), term = "kappa")
 
 loss <- combine_values(with, without, by = c("Group", "Year"), fun = function(x) (x[1] - x[2]) / x[2])
+
+saveRDS(loss, "output/group/loss.rds")
 
 loss %<>% coef()
 

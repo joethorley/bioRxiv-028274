@@ -68,7 +68,7 @@ Type objective_function<Type>::operator() () {
 }",
 new_expr = "
   for(i in 1:length(Males)) {
-    prediction[i] <- bIntercept + (bDensity + 1 + bGroup[Group[i]]) * log(Males[i]) + bPDO * PDO[i] + bArea * Area[i] + bAnnual[Annual[i]]
+    prediction[i] <- exp(bIntercept + (bDensity + 1 + bGroup[Group[i]]) * log(Males[i]) + bPDO * PDO[i] + bArea * Area[i] + bAnnual[Annual[i]])
     kappa[i] <- exp(-(bIntercept + bPDO * PDO[i] + bArea * Area[i] + bAnnual[Annual[i]])  / (bDensity + bGroup[Group[i]]))
     fit[i] <- log_eMales[Group[i], Annual[i]]
     residual[i] <- (log(Males[i]) - fit[i]) / exp(log_sObservation)

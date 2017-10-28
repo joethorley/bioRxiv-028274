@@ -16,7 +16,6 @@ process_data <- function(x) {
       Lek = factor(Lek),
     ) %>%
     as.tbl()
-  x$Dispersion <- factor(1:nrow(x))
   x
 }
 

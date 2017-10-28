@@ -1,5 +1,6 @@
-model <- model(
-  "data {
+source("model-lek.R")
+
+model %<>% update_model("data {
 
   int nAnnual;
   int nLek;
@@ -26,7 +27,7 @@ model <- model(
   }
 
   model {
-  vector[nObs] eMales;
+  vector[nObs] log_eMales;
 
   bIntercept ~ normal(0, 5);
   bArea ~ normal(0, 5);
@@ -38,18 +39,10 @@ model <- model(
   bLek ~ normal(0, sLek);
 
   for(i in 1:nObs) {
-  eMales[i] = bIntercept + bArea * Area[i] + bPDO * PDO[i] + bLek[Lek[i]] + bAnnual[Annual[i]];
-  Males[i] ~ neg_binomial_2_log(eMales[i], bPhi);
+    log_eMales[i] = bIntercept + bArea * Area[i] + bPDO * PDO[i] + bLek[Lek[i]] + bAnnual[Annual[i]];
+    Males[i] ~ neg_binomial_2_log(log_eMales[i], 1/bPhi);
   }
   }",
-new_expr = "
-for(i in 1:length(Males)) {
-  log(prediction[i]) <- bIntercept + bArea * Area[i] + bPDO * PDO[i] + bAnnual[Annual[i]] + bLek[Lek[i]]
-  fit[i] <- prediction[i]
-  residual[i] <- (Males[i]-fit[i]) / sqrt(fit[i] + fit[i]^2/sPhi)
-}",
-random_effects = list(bAnnual = "Annual", bLek = "Lek"),
-select_data = list("Males" = 1L, "PDO*" = 1, "Area*" = 1,
-                   Annual = factor(1), Lek = factor(1)),
-nthin = 10L
+  gen_inits = function(data) {list()},
+  nthin = 10L
 )

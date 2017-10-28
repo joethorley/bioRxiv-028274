@@ -76,3 +76,13 @@ ggplot(data = data, aes(x = residual)) +
 ggplot(data = data, aes(x = fit, y = residual)) +
   geom_point(alpha = 1/5) +
   expand_limits(y = 0)
+
+models <- model(analysis) %>%
+  make_all_models()
+
+analyses <- analyse(models, data = data)
+
+coef <- coef(analyses)
+print(coef)
+
+write_csv(coef, "output/tables/coef-lek.csv")
