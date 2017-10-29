@@ -49,6 +49,8 @@ saveRDS(as.integer(pdo$LagPDO[1]), "output/values/pdo_lag_group.rds")
 
 analysis <- analyses[[str_c(dist, area$LagArea[1], pdo$LagPDO[1], sep = "_")]]
 
+coef(analysis)
+
 data <- data_set(analysis)
 
 saveRDS(data, "output/group/data_final.rds")
@@ -67,6 +69,10 @@ models <- model(analysis) %>%
   make_all_models()
 
 analyses <- analyse(models, data = data)
+
+saveRDS(analyses, "output/group/analyses-aic.rds")
+
+coef(analyses[["full"]])
 
 coef <- coef(analyses)
 print(coef)
@@ -88,7 +94,6 @@ print(ggplot(data = effect, aes(x = term, y = estimate)) +
       expand_limits(y = c(0.33,-0.33)))
 
 write_csv(coef, "output/tables/coef-lek.csv")
-
 
 data$fit <- exp(predict(analysis, new_data = data, term = "fit")$estimate)
 

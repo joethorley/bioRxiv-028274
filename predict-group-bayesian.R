@@ -2,7 +2,11 @@ source("header.R")
 
 analysis <- readRDS("output/group/analysis-bayesian.rds")
 
+options(mb.parallel = FALSE)
 data <- data_set(analysis)
+
+ref_data <- new_data(data) %>%
+  mutate(Area = 0, PDO = 0)
 
 dist <- readRDS("output/values/dist.rds")
 
@@ -32,16 +36,13 @@ ggsave("output/plots/effect-group.png", width = 2.5, height = 2.5, dpi = dpi)
 saveRDS(sd(data$PDO), "output/values/sd-pdo-group.rds")
 saveRDS(sd(data$Area), "output/values/sd-area-group.rds")
 
-ref_data <- new_data(data) %>%
-  mutate(Area = 0, PDO = 0)
-
 males <- new_data(data, "Males", ref = ref_data) %>%
   predict(analysis, new_data = .)
 
-print(ggplot(data = males, aes(x = Males, y = exp(estimate))) +
+print(ggplot(data = males, aes(x = Males, y = estimate)) +
         geom_line() +
-        geom_line(aes(y = exp(lower)), linetype = "dotted") +
-        geom_line(aes(y = exp(upper)), linetype = "dotted") +
+        geom_line(aes(y = lower), linetype = "dotted") +
+        geom_line(aes(y = upper), linetype = "dotted") +
         geom_hline(yintercept = 1, linetype = "dotted") +
         scale_x_continuous("Sage-Grouse (males/lek)") +
         scale_y_continuous("Annual Population Change (%)"))
@@ -121,5 +122,3 @@ print(ggplot(data = loss, aes(x = Year, y = estimate)) +
         scale_x_continuous("Year") +
         scale_y_continuous("Loss (%)", labels = percent) +
         expand_limits(y = 0))
-
-ggsave("output/plots/loss-group.png", width = 4, height = 4, dpi = dpi)

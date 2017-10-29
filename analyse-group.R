@@ -1,7 +1,7 @@
 source("header.R")
 source("model-group.R")
 
-files <- list.files("output/group", pattern = "^data_", full.names = TRUE)
+files <- list.files("output/group", pattern = "^data[_]\\d", full.names = TRUE)
 
 data <- lapply(files, readRDS)
 

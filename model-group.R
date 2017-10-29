@@ -15,19 +15,16 @@ Type objective_function<Type>::operator() () {
   PARAMETER(bDensity);
   PARAMETER(bPDO);
   PARAMETER(bArea);
-  PARAMETER(bInitialIntercept);
   PARAMETER_VECTOR(bInitial);
   PARAMETER_VECTOR(bGroup);
   PARAMETER_VECTOR(bAnnual);
   PARAMETER_MATRIX(bProcess);
   PARAMETER(log_sGroup);
-  PARAMETER(log_sInitial);
   PARAMETER(log_sAnnual);
   PARAMETER(log_sProcess);
   PARAMETER(log_sObservation);
 
   Type sGroup = exp(log_sGroup);
-  Type sInitial = exp(log_sInitial);
   Type sAnnual = exp(log_sAnnual);
   Type sProcess = exp(log_sProcess);
   Type sObservation = exp(log_sObservation);
@@ -49,7 +46,6 @@ Type objective_function<Type>::operator() () {
   }
 
   for(i = 0; i < nGroup; i++) {
-    nll -= dnorm(bInitial(i), bInitialIntercept, sInitial, true);
     nll -= dnorm(bGroup(i), Type(0), sGroup, true);
 
     log_eMales(i,FirstAnnual(i)-1) = bIntercept + (bDensity + 1 + bGroup(i)) * bInitial(i) + bArea * Area(i,FirstAnnual(i)-1) + bPDO * PDO(i,FirstAnnual(i)-1) + bAnnual(FirstAnnual(i)-1) + bProcess(i,FirstAnnual(i)-1);
@@ -95,12 +91,10 @@ new_expr = "
     inits$bDensity <- 0
     inits$bPDO <- 0
     inits$bArea <- 0
-    inits$bInitialIntercept <- 0
     inits$bGroup <- rep(0, data$nGroup)
     inits$bAnnual <- rep(0, data$nAnnual)
     inits$bProcess <- matrix(0, nrow = data$nGroup, ncol = data$nAnnual)
-    inits$bInitial <- rep(0, data$nGroup)
-    inits$log_sInitial <- 0
+    inits$bInitial <- rep(3, data$nGroup)
     inits$log_sGroup <- 0
     inits$log_sAnnual <- 0
     inits$log_sProcess <- 0
@@ -109,7 +103,7 @@ new_expr = "
     inits
   },
   derived = "log_eMales",
-  random_effects = list(bInitial = "Group", bGroup = "Group", bAnnual = "Annual", bProcess = c("Group", "Annual")),
+  random_effects = list(bGroup = "Group", bAnnual = "Annual", bProcess = c("Group", "Annual")),
   select_data = list("Males" = 1, "PDO*" = 1, "Area*" = 1,
                      Annual = factor(1), Group = factor(1)),
   drops = list("bPDO", "bArea")

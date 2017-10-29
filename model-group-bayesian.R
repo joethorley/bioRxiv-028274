@@ -15,7 +15,6 @@ model  <- model(
   real bDensity;
   real bPDO;
   real bArea;
-  real bInitialIntercept;
 
   vector[nAnnual] bAnnual;
   vector[nGroup] bGroup;
@@ -24,7 +23,6 @@ model  <- model(
   matrix[nGroup,nAnnual] bProcess;
 
   real<lower=0> sGroup;
-  real<lower=0> sInitial;
   real<lower=0> sAnnual;
   real<lower=0> sProcess;
   real<lower=0> sObservation;
@@ -38,17 +36,15 @@ model  <- model(
   bDensity ~ normal(0, 2);
   bPDO ~ normal(0, 2);
   bArea ~ normal(0, 2);
-  bInitialIntercept ~ normal(3, 0.2);
 
   sGroup ~ normal(0, 1);
-  sInitial ~ normal(0.3, 0.2);
   sAnnual ~ normal(0, 1);
   sProcess ~ normal(0, 1);
   sObservation ~ normal(0, 1);
 
   bAnnual ~ normal(0, sAnnual);
   bGroup ~ normal(0, sGroup);
-  bInitial ~ normal(0, sInitial);
+  bInitial ~ normal(3, 1);
 
   for(i in 1:nGroup) {
     bProcess[i,FirstAnnual[i]] ~ normal(0, sProcess);
@@ -92,15 +88,13 @@ gen_inits = function(data) {
   inits$bIntercept <- 0.75
   inits$bArea <- 0
   inits$bPDO <- 0
-  inits$bInitialIntercept <- 3
   inits$sAnnual <- 0.1
   inits$sGroup <- 0.01
-  inits$sInitial <- 0.5
   inits$sObservation <- 0.1
   inits$sProcess <- 0.1
   inits
 },
-random_effects = list(bInitial = "Group", bGroup = "Group", bAnnual = "Annual", bProcess = c("Group", "Annual")),
+random_effects = list(bGroup = "Group", bAnnual = "Annual", bProcess = c("Group", "Annual")),
 select_data = list("Males" = 1, "PDO*" = 1, "Area*" = 1,
                    Annual = factor(1), Group = factor(1)),
 nthin = 10L
