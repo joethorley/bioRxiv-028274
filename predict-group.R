@@ -146,11 +146,21 @@ print(ggplot(data = group, aes(x = Group, y = estimate)) +
         scale_y_continuous("Carrying Capacity (males/lek)") +
         expand_limits(y = 0))
 
+max_area <- max(data$Area)
+
 data <- data_set(analysis)
 data_set <- new_data(data)
 
 data %<>% mutate(PDO = 0,
                  Annual = data_set$Annual)
+
+max_area <- data[which.max(data$Area),]
+
+effect_low <- effect$lower[effect$term == "Area" & effect$Type == "MMI"]
+
+predict(analyses[["full"]], new_data = mutate(max_area, Area = 0))$estimate
+predict(analyses, new_data = max_area, term = "kappa", new_values = list(bArea = effect_low))$estimate
+
 
 with <- derive_data(analysis, new_data = data, term = "kappa")
 without <- derive_data(analysis, new_data = mutate(data, Area = 0), term = "kappa")
