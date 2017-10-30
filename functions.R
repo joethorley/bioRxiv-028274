@@ -74,3 +74,14 @@ add_ABC <- function(x) {
   x
 }
 
+get_effects <- function(coef) {
+  effect <- filter(coef, term %in% c("bPDO", "bArea")) %>%
+    select(term, estimate, lower, upper) %>%
+    map_if(is.numeric, exp_minus1) %>%
+    as.data.frame(stringsAsFactors = FALSE) %>%
+    as.tbl()
+
+  effect$term %<>%
+    factor(levels = c("bArea", "bPDO"), labels = c("Area", "PDO Index"))
+  effect
+}

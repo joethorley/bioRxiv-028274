@@ -24,31 +24,38 @@ ggplot(data = data, aes(x = fit, y = residual)) +
   geom_point(alpha = 1/5) +
   expand_limits(y = 0)
 
-coef <- coef(analyses)
-print(coef)
+coef_full <- coef(analyses[["full"]])
+print(coef_full)
 
-write_csv(coef, "output/tables/coef-lek.csv")
+coef_mmi <- coef(analyses)
+print(coef_mmi)
 
-effect <- filter(coef, term %in% c("bPDO", "bArea")) %>%
-  select(term, estimate, lower, upper) %>%
-  map_if(is.numeric, exp_minus1) %>%
-  as.data.frame(stringsAsFactors = FALSE) %>%
-  as.tbl()
-
-effect$term %<>%
-  factor(levels = c("bArea", "bPDO"), labels = c("Area", "PDO Index"))
-
-print(ggplot(data = effect, aes(x = term, y = estimate)) +
-        geom_pointrange(aes(ymin = lower, ymax = upper)) +
-        geom_hline(yintercept = 0, linetype = "dotted") +
-        scale_x_discrete("Predictor") +
-        scale_y_continuous("Change in Lek Count (%)", labels = percent) +
-        expand_limits(y = c(0.33,-0.33)))
+effect_full <- get_effects(coef_full)
+effect_mmi <- get_effects(coef_mmi)
 
 analysis <- readRDS("output/lek/analysis_bayesian.rds")
 
-coef <- coef(analysis)
-print(coef)
+coef_bayesian <- coef(analysis)
+print(coef_bayesian)
+
+effect_bayesian <- get_effects(coef_bayesian)
+
+effect_bayesian$Type <- "Bayes"
+effect_full$Type <- "Full"
+effect_mmi$Type <- "MMI"
+
+effect <- bind_rows(effect_bayesian, effect_full, effect_mmi)
+effect$Type %<>% factor(levels = c("MMI", "Full", "Bayes"))
+
+print(ggplot(data = effect, aes(x = Type, y = estimate)) +
+        facet_wrap(~term) +
+        geom_pointrange(aes(ymin = lower, ymax = upper)) +
+        geom_hline(yintercept = 0, linetype = "dotted") +
+        scale_x_discrete("Estimate") +
+        scale_y_continuous("Change in Lek Count (%)", labels = percent) +
+        expand_limits(y = c(0.33,-0.33)))
+
+ggsave("output/plots/effect-lek.png", width = 4, height = 2.5, dpi = dpi)
 
 ref_data <- new_data(data) %>%
   mutate(Area = 0, PDO = 0)
