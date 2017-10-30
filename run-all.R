@@ -17,15 +17,9 @@ source("manipulate-lek.R")
 source("analyse-lek.R")
 source("predict-lek.R")
 
-source("analyse-lek-bayesian.R")
-source("predict-lek-bayesian.R")
-
 source("manipulate-group.R")
 source("analyse-group.R")
 source("predict-group.R")
-
-source("analyse-group-bayesian.R")
-source("predict-group-bayesian.R")
 
 source("predict-overestimation.R")
 

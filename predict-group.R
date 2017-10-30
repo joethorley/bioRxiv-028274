@@ -1,62 +1,14 @@
 source("header.R")
 
-analyses <- readRDS("output/group/analyses.rds")
+analyses <- readRDS("output/group/analyses_final.rds")
+dist <- readRDS("output/values/dist.rds")
 
-glance <- map(analyses, glance) %>%
-  bind_rows(.id = "code")
+analyses %<>% sort_by_ic()
 
-glance %<>% mutate(Distance = str_extract(code, "^[^_]+"),
-                   LagArea = str_replace(code, "(^[^_]+_)([^_]+)(_[^_]+$)", "\\2"),
-                   LagPDO = str_extract(code, "[^_]+$"))
+data <- data_set(analyses)
 
-glance %<>% arrange(IC)
-
-glance %<>% mutate(DeltaIC = IC - min(IC),
-                   ICWt = exp(-0.5 * DeltaIC))
-
-glance$ICWt %<>% divide_by(., sum(.))
-
-dist <- glance$Distance %>%
-  first() %>%
-  as.numeric()
-
-pdo <- glance %>%
-  group_by(LagPDO) %>%
-  summarise(nmodels = n(),
-            proportion = n()/nrow(glance),
-            ICWt = sum(ICWt)) %>%
-  ungroup() %>%
-  arrange(-ICWt)
-
-print(pdo)
-
-write_csv(pdo, "output/tables/pdo-group.csv")
-
-area <- glance %>%
-  group_by(LagArea) %>%
-  summarise(nmodels = n(),
-            proportion = n()/nrow(glance),
-            ICWt = sum(ICWt)) %>%
-  ungroup() %>%
-  arrange(-ICWt)
-
-print(area)
-
-write_csv(area, "output/tables/area-group.csv")
-
-saveRDS(as.integer(area$LagArea[1]), "output/values/area_lag_group.rds")
-saveRDS(as.integer(pdo$LagPDO[1]), "output/values/pdo_lag_group.rds")
-
-analysis <- analyses[[str_c(dist, area$LagArea[1], pdo$LagPDO[1], sep = "_")]]
-
-coef(analysis)
-
-data <- data_set(analysis)
-
-saveRDS(data, "output/group/data_final.rds")
-
-data$fit <- fitted(analysis)$estimate
-data$residual <- residuals(analysis)$estimate
+data$fit <- fitted(analyses[["full"]])$estimate
+data$residual <- residuals(analyses[["full"]])$estimate
 
 ggplot(data = data, aes(x = residual)) +
   geom_histogram(binwidth = 0.1)
@@ -65,35 +17,32 @@ ggplot(data = data, aes(x = Year, y = residual)) +
   facet_wrap(~Group) +
   geom_point()
 
-models <- model(analysis) %>%
-  make_all_models()
-
-analyses <- analyse(models, data = data)
-
-saveRDS(analyses, "output/group/analyses-aic.rds")
-
-coef(analyses[["full"]])
-
-coef <- coef(analyses)
+coef <- coef(analyses[["full"]])
 print(coef)
 
+write_csv(coef, "output/tables/coef-group.csv")
+
 effect <- filter(coef, term %in% c("bPDO", "bArea")) %>%
-select(term, estimate, lower, upper) %>%
-map_if(is.numeric, exp_minus1) %>%
-as.data.frame(stringsAsFactors = FALSE) %>%
-as.tbl()
+  select(term, estimate, lower, upper) %>%
+  map_if(is.numeric, exp_minus1) %>%
+  as.data.frame(stringsAsFactors = FALSE) %>%
+  as.tbl()
 
 effect$term %<>%
-factor(levels = c("bArea", "bPDO"), labels = c("Area", "PDO Index"))
+  factor(levels = c("bArea", "bPDO"), labels = c("Area", "PDO Index"))
 
 print(ggplot(data = effect, aes(x = term, y = estimate)) +
-      geom_pointrange(aes(ymin = lower, ymax = upper)) +
-      geom_hline(yintercept = 0, linetype = "dotted") +
-      scale_x_discrete("Predictor") +
-      scale_y_continuous("Change in Lek Count (%)", labels = percent) +
-      expand_limits(y = c(0.33,-0.33)))
+        geom_pointrange(aes(ymin = lower, ymax = upper)) +
+        geom_hline(yintercept = 0, linetype = "dotted") +
+        scale_x_discrete("Predictor") +
+        scale_y_continuous("Change in Lek Count (%)", labels = percent) +
+        expand_limits(y = c(0.33,-0.33)))
 
-write_csv(coef, "output/tables/coef-lek.csv")
+analysis <- readRDS("output/group/analysis_bayesian.rds")
+
+coef <- coef(analysis)
+print(coef)
+
 
 data$fit <- exp(predict(analysis, new_data = data, term = "fit")$estimate)
 
