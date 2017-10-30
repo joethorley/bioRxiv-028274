@@ -158,7 +158,7 @@ max_area <- data[which.max(data$Area),]
 
 effect_low <- effect$lower[effect$term == "Area" & effect$Type == "MMI"]
 
-predict(analyses[["full"]], new_data = mutate(max_area, Area = 0))$estimate
+predict(analyses, new_data = mutate(max_area, Area = 0), term = "kappa", new_values = list(bArea = effect_low))$estimate
 predict(analyses, new_data = max_area, term = "kappa", new_values = list(bArea = effect_low))$estimate
 
 
