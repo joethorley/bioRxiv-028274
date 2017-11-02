@@ -23,6 +23,8 @@ ggplot(data = data, aes(x = Year, y = residual)) +
 coef_full <- coef(analyses[["full"]])
 print(coef_full)
 
+coef_profile <- coef(analyses[["full"]], profile = TRUE)
+
 coef_mmi <- coef(analyses)
 print(coef_mmi)
 

@@ -1,9 +1,8 @@
 source("header.R")
 
 analyses <- readRDS("output/lek/analyses_final.rds")
+analysis <- readRDS("output/lek/analysis_bayesian.rds")
 dist <- readRDS("output/values/dist.rds")
-
-analyses %<>% sort_by_ic()
 
 data <- data_set(analyses)
 
@@ -13,6 +12,8 @@ saveRDS(min(data$Year), "output/values/first-year-lek.rds")
 saveRDS(max(data$Year), "output/values/last-year-lek.rds")
 saveRDS(sd(data$PDO), "output/values/sd-pdo-lek.rds")
 saveRDS(sd(data$Area), "output/values/sd-area-lek.rds")
+
+analyses %<>% sort_by_ic()
 
 data$fit <- fitted(analyses[["full"]])$estimate
 data$residual <- residuals(analyses[["full"]])$estimate
@@ -24,35 +25,36 @@ ggplot(data = data, aes(x = fit, y = residual)) +
   geom_point(alpha = 1/5) +
   expand_limits(y = 0)
 
+warning("ensure profiling switched on when in paper model")
 coef_full <- coef(analyses[["full"]])
 print(coef_full)
 
+warning("need to profile and MATA on CLs")
 coef_mmi <- coef(analyses)
 print(coef_mmi)
-
-effect_full <- get_effects(coef_full)
-effect_mmi <- get_effects(coef_mmi)
-
-analysis <- readRDS("output/lek/analysis_bayesian.rds")
 
 coef_bayesian <- coef(analysis)
 print(coef_bayesian)
 
+effect_full <- get_effects(coef_full)
+effect_mmi <- get_effects(coef_mmi)
 effect_bayesian <- get_effects(coef_bayesian)
 
-effect_bayesian$Type <- "Bayes"
+effect_bayesian$Type <- "Bayesian"
 effect_full$Type <- "Full"
-effect_mmi$Type <- "MMI"
+effect_mmi$Type <- "Averaged"
 
 effect <- bind_rows(effect_bayesian, effect_full, effect_mmi)
-effect$Type %<>% factor(levels = c("MMI", "Full", "Bayes"))
+effect$Type %<>% factor(levels = c("Averaged", "Full", "Bayesian"))
+
+effect$Term <- str_replace(effect$term, "Area", "Oil and Gas")
 
 print(ggplot(data = effect, aes(x = Type, y = estimate)) +
-        facet_wrap(~term) +
+        facet_wrap(~Term) +
         geom_pointrange(aes(ymin = lower, ymax = upper)) +
         geom_hline(yintercept = 0, linetype = "dotted") +
-        scale_x_discrete("Estimate") +
-        scale_y_continuous("Change in Lek Count (%)", labels = percent) +
+        scale_x_discrete("Statistical Method") +
+        scale_y_continuous("Effect on Lek Count (%)", labels = percent) +
         expand_limits(y = c(0.33,-0.33)))
 
 ggsave("output/plots/effect-lek.png", width = 4, height = 2.5, dpi = dpi)
@@ -69,7 +71,7 @@ print(ggplot(data = pdo, aes(x = PDO, y = estimate)) +
         geom_line(aes(y = lower), linetype = "dotted") +
         geom_line(aes(y = upper), linetype = "dotted") +
         scale_x_continuous("PDO Index") +
-        scale_y_continuous("Lek Count (%)", labels = percent) +
+        scale_y_continuous("Effect on Lek Count (%)", labels = percent) +
         expand_limits(y = c(-1,1)))
 
 ggsave("output/plots/pdo-lek.png", width = 2.5, height = 2.5, dpi = dpi)
@@ -82,8 +84,8 @@ print(ggplot(data = area, aes(x = Area, y = estimate)) +
         geom_line() +
         geom_line(aes(y = lower), linetype = "dotted") +
         geom_line(aes(y = upper), linetype = "dotted") +
-        scale_x_continuous("Oil and Gas Areal Disturbance (%)", labels = percent) +
-        scale_y_continuous("Lek Count (%)", labels = percent) +
+        scale_x_continuous("Oil and Gas (%)", labels = percent) +
+        scale_y_continuous("Effect on Lek Count (%)", labels = percent) +
         expand_limits(y = c(-1,1)))
 
 ggsave("output/plots/area-lek.png", width = 2.5, height = 2.5, dpi = dpi)
@@ -96,16 +98,20 @@ print(ggplot(data = annual, aes(x = Year, y = estimate)) +
         geom_hline(yintercept = 0, linetype = "dotted") +
         geom_pointrange(aes(ymin = lower, ymax = upper)) +
         scale_x_continuous("Year") +
-        scale_y_continuous("Males (%)", labels = percent) +
+        scale_y_continuous("Effect on Lek Count (%)", labels = percent) +
         expand_limits(y = c(-1, 1)))
+
+ggsave("output/plots/annual-lek.png", width = 2.5, height = 2.5, dpi = dpi)
 
 lek <- new_data(data, "Lek", ref = ref_data) %>%
   predict(analysis, new_data = .)
 
 print(ggplot(data = lek, aes(x = estimate)) +
         geom_histogram(binwidth = 5, color = "white") +
-        scale_x_continuous("Males") +
+        scale_x_continuous("Lek Size (males)") +
         scale_y_continuous("Leks"))
+
+ggsave("output/plots/leks-lek.png", width = 2.5, height = 2.5, dpi = dpi)
 
 data %<>%
   group_by(Lek, Year, Group) %>%
@@ -132,7 +138,7 @@ print(
     facet_wrap(~GroupABC) +
     geom_line(aes(group = Lek), alpha = 1/3) +
     scale_x_continuous("Year") +
-    scale_y_continuous("Areal Disturbance (%)", labels = percent) +
+    scale_y_continuous("Oil and Gas (%)", labels = percent) +
     expand_limits(y = 0)
 )
 
@@ -184,21 +190,5 @@ without %<>% group_by(Annual, Group) %>%
   summarise() %>%
   ungroup()
 
-loss <- combine_values(with, without, by = c("Annual", "Group"), fun = function(x) (x[1] - x[2]) / x[2])
-
-saveRDS(loss, "output/lek/loss.rds")
-
-loss %<>% coef()
-
-loss$Year <- loss$Annual %>% as.character() %>% as.integer()
-
-loss$GroupABC <- add_ABC(loss$Group)
-
-print(ggplot(data = loss, aes(x = Year, y = estimate)) +
-        facet_wrap(~GroupABC) +
-        geom_line() +
-        geom_line(aes(y = lower), linetype = "dotted") +
-        geom_line(aes(y = upper), linetype = "dotted") +
-        scale_x_continuous("Year") +
-        scale_y_continuous("Loss (%)", labels = percent) +
-        expand_limits(y = 0))
+saveRDS(with, "output/lek/with.rds")
+saveRDS(without, "output/lek/without.rds")

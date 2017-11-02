@@ -73,47 +73,54 @@ select_data = list("Males" = 1L, "PDO*" = 1, "Area*" = 1,
 model_bayesian <- update_model(model,
 "data {
 
-                        int nAnnual;
-                        int nLek;
-                        int nObs;
+  int nAnnual;
+  int nLek;
+  int nObs;
 
-                        int Annual[nObs];
-                        int Lek[nObs];
+  int Annual[nObs];
+  int Lek[nObs];
 
-                        int Males[nObs];
-                        real Area[nObs];
-                        real PDO[nObs];
-                        }
+  int Males[nObs];
+  real Area[nObs];
+  real PDO[nObs];
+}
 
-                        parameters {
-                        real bIntercept;
-                        real bArea;
-                        real bPDO;
-                        vector[nAnnual] bAnnual;
-                        vector[nLek] bLek;
+parameters {
+  real bIntercept;
+  real bArea;
+  real bPDO;
+  vector[nAnnual] bAnnual;
+  vector[nLek] bLek;
 
-                        real<lower=0> sAnnual;
-                        real<lower=0> sLek;
-                        real<lower=0, upper=5> bPhi;
-                        }
+  real log_sAnnual;
+  real log_sLek;
+  real log_bPhi;
+}
 
-                        model {
-                        vector[nObs] log_eMales;
+transformed parameters{
+  real sAnnual = exp(log_sAnnual);
+  real sLek = exp(log_sLek);
+  real bPhi = exp(log_bPhi);
+}
 
-                        bIntercept ~ normal(0, 5);
-                        bArea ~ normal(0, 5);
-                        bPDO ~ normal(0, 5);
-                        sAnnual ~ normal(0, 5);
-                        sLek ~ normal(0, 5);
+model {
+  vector[nObs] log_eMales;
 
-                        bAnnual ~ normal(0, sAnnual);
-                        bLek ~ normal(0, sLek);
+  bIntercept ~ normal(0, 5);
+  bArea ~ normal(0, 5);
+  bPDO ~ normal(0, 5);
+  log_sAnnual ~ normal(0, 5);
+  log_sLek ~ normal(0, 5);
+  log_bPhi ~ normal(0, 5);
 
-                        for(i in 1:nObs) {
-                        log_eMales[i] = bIntercept + bArea * Area[i] + bPDO * PDO[i] + bLek[Lek[i]] + bAnnual[Annual[i]];
-                        Males[i] ~ neg_binomial_2_log(log_eMales[i], 1/bPhi);
-                        }
-                        }",
+  bAnnual ~ normal(0, sAnnual);
+  bLek ~ normal(0, sLek);
+
+  for(i in 1:nObs) {
+    log_eMales[i] = bIntercept + bArea * Area[i] + bPDO * PDO[i] + bLek[Lek[i]] + bAnnual[Annual[i]];
+    Males[i] ~ neg_binomial_2_log(log_eMales[i], 1/bPhi);
+  }
+}",
   gen_inits = function(data) {list()},
   nthin = 10L
 )

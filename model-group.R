@@ -159,17 +159,17 @@ transformed parameters {
 
   matrix[nGroup,nAnnual] log_eMales;
 
-  bIntercept ~ normal(0.75, 0.5);
-  bDensity ~ normal(-0.25, 0.2);
-  bPDO ~ normal(0, 1);
-  bArea ~ normal(0, 1);
-  bInitialIntercept ~ normal(2.9, 0.3);
+  bIntercept ~ normal(0, 5);
+  bDensity ~ normal(0, 5);
+  bPDO ~ normal(0, 5);
+  bArea ~ normal(0, 5);
+  bInitialIntercept ~ normal(0, 5);
 
-  log_sInitial ~ normal(-1.2, 0.9);
-  log_sAnnual ~ normal(-1.8, 0.3);
-  log_sGroup ~ normal(-1.8, 0.3);
-  log_sProcess ~ normal(-2.2, 0.4);
-  log_sObservation ~ normal(-2.5, 5);
+  log_sInitial ~ normal(0, 5);
+  log_sAnnual ~ normal(0, 5);
+  log_sGroup ~ normal(0, 5);
+  log_sProcess ~ normal(0, 5);
+  log_sObservation ~ normal(0, 5);
 
   bAnnual ~ normal(0, sAnnual);
   bInitial ~ normal(0, sInitial);
