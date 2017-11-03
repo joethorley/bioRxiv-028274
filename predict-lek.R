@@ -29,12 +29,18 @@ warning("ensure profiling switched on when in paper model")
 coef_full <- coef(analyses[["full"]])
 print(coef_full)
 
+write_csv(coef_full, "output/tables/lek-coef-full.csv")
+
 warning("need to profile and MATA on CLs")
 coef_mmi <- coef(analyses)
 print(coef_mmi)
 
+write_csv(coef_mmi, "output/tables/lek-coef-mmi.csv")
+
 coef_bayesian <- coef(analysis)
 print(coef_bayesian)
+
+write_csv(coef_bayesian, "output/tables/lek-coef-bayesian.csv")
 
 effect_full <- get_effects(coef_full)
 effect_mmi <- get_effects(coef_mmi)
