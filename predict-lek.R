@@ -171,22 +171,21 @@ data %<>%
 data_set <- data_set(analysis) %>%
   new_data()
 
-data %<>% mutate(Annual = factor(Year, levels = levels(data_set$Annual)),
+data %<>% mutate(PDO = 0,
+                 Annual = data_set$Annual,
                  Group = factor(Group, levels = levels(data_set$Group)),
                  Lek = factor(Lek, levels = levels(data_set$Lek)),
                  Males = 1L)
 
-data$PDO <- 0
-
 with <- derive_data(analysis, new_data = data)
 
-with %<>% group_by(Annual, Group) %>%
+with %<>% group_by(Year, Group) %>%
   summarise() %>%
   ungroup()
 
 without <- derive_data(analysis, new_data = mutate(data, Area = 0))
 
-without %<>% group_by(Annual, Group) %>%
+without %<>% group_by(Year, Group) %>%
   summarise() %>%
   ungroup()
 

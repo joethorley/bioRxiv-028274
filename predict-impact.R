@@ -3,81 +3,60 @@ source("header.R")
 with_lek <- readRDS("output/lek/with.rds")
 without_lek <- readRDS("output/lek/without.rds")
 
-# get odds across state
+with_group <- readRDS("output/group/with.rds")
+without_group <- readRDS("output/group/without.rds")
 
-group$data %<>% select(Group, Year)
-names(group$mcmcr) <- "prediction"
+loss_lek <- combine_values(with_lek, without_lek, by = c("Group", "Year"), fun = function(x) (x[1] - x[2]) / x[2])
 
-lek$data %<>% rename(Year = Annual) %>%
-  mutate(Year = as.integer(as.character(Year)))
+loss_group <- combine_values(with_group, without_group, by = c("Group", "Year"), fun = function(x) (x[1] - x[2]) / x[2])
 
-geq <- combine_values(lek, group, by = c("Group", "Year"), function(x) {ifelse(x[1] > x[2], 0, 1)})
+loss_lek %<>% coef()
+loss_group %<>% coef()
 
-geq %<>% coef(estimate = mean)
+loss_lek$Group %<>% add_ABC()
+loss_group$Group %<>% add_ABC()
 
-geq$Group %<>% add_ABC()
-
-print(ggplot(data = geq, aes(x = Year, y = estimate)) +
+print(ggplot(data = loss_group, aes(x = Year, y = estimate)) +
         facet_wrap(~Group) +
-        geom_line() +
-        scale_x_continuous("Year") +
-        scale_y_continuous("Overestimation (%)", labels = percent) +
-        expand_limits(y = c(0,1)))
-
-ggsave("output/plots/overestimation.png", width = 4, height = 4, dpi = dpi)
-
-lek %<>% coef()
-group %<>% coef()
-
-lek$Group %<>% add_ABC()
-group$Group %<>% add_ABC()
-
-print(ggplot(data = group, aes(x = Year, y = estimate)) +
-        facet_wrap(~Group) +
-        geom_ribbon(data = group, aes(ymin = lower, ymax = upper), fill = "blue", alpha = 1/3) +
-        geom_ribbon(data = lek, aes(ymin = lower, ymax = upper), fill = "red", alpha = 1/3) +
+        geom_ribbon(aes(ymin = lower, ymax = upper), fill = "blue", alpha = 1/3) +
+        geom_ribbon(data = loss_lek, aes(ymin = lower, ymax = upper), fill = "red", alpha = 1/3) +
         geom_line(color = "blue") +
-        geom_line(data = lek, color = "red") +
+        geom_line(data = loss_lek, color = "red") +
         scale_x_continuous("Year") +
-        scale_y_continuous("Loss (%)", labels = percent) +
+        scale_y_continuous("Effect on Population Abundance (%)", labels = percent) +
         expand_limits(y = 0))
 
-ggsave("output/plots/loss.png", width = 4, height = 4, dpi = dpi)
+ggsave("output/plots/impact.png", width = 4, height = 4, dpi = dpi)
 
+with_lek %<>% group_by(Year) %>%
+  summarise() %>%
+  ungroup()
 
-#
-# loss <- combine_values(with, without, by = c("Annual", "Group"), fun = function(x) (x[1] - x[2]) / x[2])
-#
-# saveRDS(loss, "output/lek/loss.rds")
-#
-# loss %<>% coef()
-#
-# loss$Year <- loss$Annual %>% as.character() %>% as.integer()
-#
-# loss$GroupABC <- add_ABC(loss$Group)
-#
-# print(ggplot(data = loss, aes(x = Year, y = estimate)) +
-#         facet_wrap(~GroupABC) +
-#         geom_line() +
-#         geom_line(aes(y = lower), linetype = "dotted") +
-#         geom_line(aes(y = upper), linetype = "dotted") +
-#         scale_x_continuous("Year") +
-#         scale_y_continuous("Loss (%)", labels = percent) +
-#         expand_limits(y = 0))
-#
-# with %<>% group_by(Annual) %>%
-#   summarise() %>%
-#   ungroup()
-#
-# without %<>% group_by(Annual) %>%
-#   summarise() %>%
-#   ungroup()
-#
-# loss_all <- combine_values(with, without, by = c("Annual"), fun = function(x) (x[1] - x[2]) / x[2])
-#
-# loss_all %<>% coef()
-#
-# loss_all %<>% select(Annual, estimate, lower, upper)
-#
-# saveRDS(loss_all, "output/lek/loss_all.rds")
+without_lek %<>% group_by(Year) %>%
+  summarise() %>%
+  ungroup()
 
+with_group %<>% group_by(Year) %>%
+  summarise() %>%
+  ungroup()
+
+without_group %<>% group_by(Year) %>%
+  summarise() %>%
+  ungroup()
+
+loss_lek <- combine_values(with_lek, without_lek, by = "Year", fun = function(x) (x[1] - x[2]) / x[2])
+
+loss_group <- combine_values(with_group, without_group, by = "Year", fun = function(x) (x[1] - x[2]) / x[2])
+
+names(loss_group$mcmcr) <- "prediction"
+
+geq <- combine_values(loss_lek, loss_group, by = "Year", function(x) {ifelse(x[1] > x[2], 0, 1)})
+
+geq %<>% coef(estimate = mean) %>%
+  filter(Year == 2016)
+
+odds <- geq$estimate / (1- geq$estimate)
+odds %<>% round(1)
+print(odds)
+# get odds for 2016
+saveRDS(odds, "output/values/odds.rds")
