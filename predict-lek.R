@@ -25,14 +25,12 @@ ggplot(data = data, aes(x = fit, y = residual)) +
   geom_point(alpha = 1/5) +
   expand_limits(y = 0)
 
-warning("ensure profiling switched on when in paper model")
-coef_full <- coef(analyses[["full"]])
+coef_full <- coef_profile(analyses[["full"]])
 print(coef_full)
 
 write_csv(coef_full, "output/tables/lek-coef-full.csv")
 
-warning("need to profile and MATA on CLs")
-coef_mmi <- coef(analyses)
+coef_mmi <- coef_profile(analyses)
 print(coef_mmi)
 
 write_csv(coef_mmi, "output/tables/lek-coef-mmi.csv")

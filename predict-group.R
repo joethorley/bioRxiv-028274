@@ -21,14 +21,12 @@ ggplot(data = data, aes(x = Year, y = residual)) +
   facet_wrap(~Group) +
   geom_point()
 
-warning("ensure profiling switched on when in paper model")
-coef_full <- coef(analyses[["full"]])
+coef_full <- coef_profile(analyses[["full"]])
 print(coef_full)
 
 write_csv(coef_full, "output/tables/group-coef-full.csv")
 
-warning("need to profile and MATA on CLs")
-coef_mmi <- coef(analyses)
+coef_mmi <- coef_profile(analyses)
 print(coef_mmi)
 
 write_csv(coef_mmi, "output/tables/group-coef-mmi.csv")
@@ -121,7 +119,7 @@ print(ggplot(data = pdo, aes(x = PDO, y = estimate)) +
         geom_line(aes(y = lower), linetype = "dotted") +
         geom_line(aes(y = upper), linetype = "dotted") +
         scale_x_continuous("PDO Index") +
-        scale_y_continuous("Carrying Capacity (%)", labels = percent) +
+        scale_y_continuous("Effect on Carrying Capacity (%)", labels = percent) +
         expand_limits(y = c(-1, 1)))
 
 ggsave("output/plots/pdo-group.png", width = 2.5, height = 2.5, dpi = dpi)
@@ -158,7 +156,7 @@ group <- new_data(data, "Group", ref = ref_data) %>%
 
 print(ggplot(data = group, aes(x = Group, y = estimate)) +
         geom_pointrange(aes(ymin = lower, ymax = upper)) +
-        scale_x_discrete("Population") +
+        scale_x_discrete("Working Group") +
         scale_y_continuous("Carrying Capacity (males/lek)") +
         expand_limits(y = 0) +
         theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)))

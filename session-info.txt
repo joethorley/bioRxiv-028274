@@ -5,96 +5,193 @@
  language (EN)                        
  collate  en_CA.UTF-8                 
  tz       America/Vancouver           
- date     2017-10-24                  
+ date     2017-11-29                  
 
- package     * version    date       source                                       
- abind         1.4-5      2016-07-21 cran (@1.4-5)                                
- assertthat    0.2.0      2017-04-11 cran (@0.2.0)                                
- audio         0.1-5      2013-12-23 cran (@0.1-5)                                
- base        * 3.4.2      2017-10-04 local                                        
- beepr         1.2        2015-06-14 cran (@1.2)                                  
- bindr         0.1        2016-11-13 cran (@0.1)                                  
- bindrcpp    * 0.2        2017-06-17 cran (@0.2)                                  
- broom       * 0.4.2      2017-02-13 cran (@0.4.2)                                
- cellranger    1.1.0      2016-07-27 cran (@1.1.0)                                
- coda        * 0.19-1     2016-12-08 cran (@0.19-1)                               
- codetools     0.2-15     2016-10-05 CRAN (R 3.4.2)                               
- colorspace    1.3-2      2016-12-14 cran (@1.3-2)                                
- compiler      3.4.2      2017-10-04 local                                        
- crayon        1.3.4      2017-09-16 CRAN (R 3.4.1)                               
- datacheckr    0.2.0.9002 2017-10-15 Github (poissonconsulting/datacheckr@64069c6)
- datasets    * 3.4.2      2017-10-04 local                                        
- DBI           0.7        2017-06-18 cran (@0.7)                                  
- devtools    * 1.13.3     2017-08-02 CRAN (R 3.4.1)                               
- digest        0.6.12     2017-01-27 CRAN (R 3.4.0)                               
- doParallel  * 1.0.11     2017-09-28 cran (@1.0.11)                               
- dplyr       * 0.7.4      2017-09-28 cran (@0.7.4)                                
- foreach     * 1.4.3      2015-10-13 cran (@1.4.3)                                
- foreign       0.8-69     2017-06-22 CRAN (R 3.4.2)                               
- ggplot2     * 2.2.1      2016-12-30 cran (@2.2.1)                                
- ggsn        * 0.4.0      2017-03-20 CRAN (R 3.4.0)                               
- glue          1.1.1      2017-06-21 cran (@1.1.1)                                
- graphics    * 3.4.2      2017-10-04 local                                        
- grDevices   * 3.4.2      2017-10-04 local                                        
- grid          3.4.2      2017-10-04 local                                        
- gridExtra     2.3        2017-09-09 cran (@2.3)                                  
- gtable        0.2.0      2016-02-26 cran (@0.2.0)                                
- hms           0.3        2016-11-22 cran (@0.3)                                  
- inline        0.3.14     2015-04-13 cran (@0.3.14)                               
- iterators   * 1.0.8      2015-10-13 cran (@1.0.8)                                
- labeling      0.3        2014-08-23 cran (@0.3)                                  
- lattice       0.20-35    2017-03-25 CRAN (R 3.4.2)                               
- lazyeval      0.2.0      2016-06-12 cran (@0.2.0)                                
- lubridate   * 1.6.0      2016-09-13 cran (@1.6.0)                                
- magrittr    * 1.5        2014-11-22 CRAN (R 3.4.0)                               
- maptools      0.9-2      2017-03-25 CRAN (R 3.4.0)                               
- Matrix        1.2-11     2017-08-21 CRAN (R 3.4.2)                               
- matrixStats   0.52.2     2017-04-14 cran (@0.52.2)                               
- mbr         * 0.0.0.9077 2017-10-23 local                                        
- mcmcr       * 0.0.0.9023 2017-10-21 local                                        
- memoise       1.1.0      2017-04-21 CRAN (R 3.4.0)                               
- methods     * 3.4.2      2017-10-04 local                                        
- mnormt        1.5-5      2016-10-15 cran (@1.5-5)                                
- munsell       0.4.3      2016-02-13 cran (@0.4.3)                                
- newdata     * 0.0.0.9009 2017-10-15 Github (poissonconsulting/newdata@27fde03)   
- nlme          3.1-131    2017-02-06 CRAN (R 3.4.2)                               
- parallel    * 3.4.2      2017-10-04 local                                        
- pkgconfig     2.0.1      2017-03-21 cran (@2.0.1)                                
- plyr        * 1.8.4      2016-06-08 cran (@1.8.4)                                
- png           0.1-7      2013-12-03 cran (@0.1-7)                                
- psych         1.7.3.21   2017-03-22 cran (@1.7.3.2)                              
- purrr       * 0.2.3      2017-08-02 cran (@0.2.3)                                
- R6            2.2.2      2017-06-17 CRAN (R 3.4.0)                               
- raster      * 2.5-8      2016-06-02 cran (@2.5-8)                                
- Rcpp          0.12.13    2017-09-28 cran (@0.12.13)                              
- readr       * 1.1.1      2017-05-16 cran (@1.1.1)                                
- readxl      * 1.0.0      2017-04-18 cran (@1.0.0)                                
- rescale       0.0.0.9004 2017-10-15 Github (poissonconsulting/rescale@5043b75)   
- reshape2      1.4.2      2016-10-22 cran (@1.4.2)                                
- rgdal       * 1.2-13     2017-10-07 cran (@1.2-13)                               
- rlang         0.1.2.9000 2017-10-18 Github (tidyverse/rlang@2aacc28)             
- rpdo        * 0.2.2.9000 2017-10-19 local                                        
- rstan       * 2.16.2     2017-07-03 CRAN (R 3.4.2)                               
- rstudioapi    0.7        2017-09-07 CRAN (R 3.4.1)                               
- scales      * 0.5.0      2017-08-24 cran (@0.5.0)                                
- sf          * 0.5-4      2017-08-28 cran (@0.5-4)                                
- smbr        * 0.0.0.9017 2017-10-20 local                                        
- sp          * 1.2-5      2017-06-29 cran (@1.2-5)                                
- StanHeaders * 2.16.0-1   2017-07-03 cran (@2.16.0-)                              
- stats       * 3.4.2      2017-10-04 local                                        
- stats4        3.4.2      2017-10-04 local                                        
- stringi       1.1.5      2017-04-07 cran (@1.1.5)                                
- stringr     * 1.2.0      2017-02-18 cran (@1.2.0)                                
- testthat    * 1.0.2      2016-04-23 CRAN (R 3.4.0)                               
- tibble        1.3.4      2017-08-22 cran (@1.3.4)                                
- tidyr       * 0.7.1      2017-09-01 cran (@0.7.1)                                
- tidyselect    0.2.2      2017-10-10 cran (@0.2.2)                                
- timer         0.0.1      2017-10-15 Github (poissonconsulting/timer@3d43750)     
- TMB           1.7.11     2017-08-09 cran (@1.7.11)                               
- tmbr        * 0.0.0.9034 2017-10-15 Github (poissonconsulting/tmbr@2f18737)      
- tools         3.4.2      2017-10-04 local                                        
- udunits2      0.13       2016-11-17 cran (@0.13)                                 
- units       * 0.4-6      2017-08-27 cran (@0.4-6)                                
- utils       * 3.4.2      2017-10-04 local                                        
- withr         2.0.0      2017-07-28 CRAN (R 3.4.1)                               
- yaml          2.1.14     2016-11-12 cran (@2.1.14)                               
+ package     * version    date      
+ abind         1.4-5      2016-07-21
+ assertthat    0.2.0      2017-04-11
+ audio         0.1-5      2013-12-23
+ base        * 3.4.2      2017-10-04
+ beepr         1.2        2015-06-14
+ bindr         0.1        2016-11-13
+ bindrcpp    * 0.2        2017-06-17
+ broom       * 0.4.3      2017-11-20
+ cellranger    1.1.0      2016-07-27
+ class         7.3-14     2015-08-30
+ classInt      0.1-24     2017-04-16
+ coda        * 0.19-1     2016-12-08
+ codetools     0.2-15     2016-10-05
+ colorspace    1.3-2      2016-12-14
+ compiler      3.4.2      2017-10-04
+ crayon        1.3.4      2017-09-16
+ datacheckr    0.2.0.9003 2017-11-23
+ datasets    * 3.4.2      2017-10-04
+ DBI           0.7        2017-06-18
+ devtools    * 1.13.4     2017-11-09
+ digest        0.6.12     2017-01-27
+ doParallel  * 1.0.11     2017-09-28
+ dplyr       * 0.7.4      2017-09-28
+ e1071         1.6-8      2017-02-02
+ foreach     * 1.4.3      2015-10-13
+ foreign       0.8-69     2017-06-22
+ ggplot2     * 2.2.1      2016-12-30
+ ggsn        * 0.4.0      2017-03-20
+ glue          1.2.0      2017-10-29
+ graphics    * 3.4.2      2017-10-04
+ grDevices   * 3.4.2      2017-10-04
+ grid          3.4.2      2017-10-04
+ gridExtra     2.3        2017-09-09
+ gtable        0.2.0      2016-02-26
+ hms           0.4.0      2017-11-23
+ inline        0.3.14     2015-04-13
+ iterators   * 1.0.8      2015-10-13
+ labeling      0.3        2014-08-23
+ lattice       0.20-35    2017-03-25
+ lazyeval      0.2.1      2017-10-29
+ lubridate   * 1.7.1      2017-11-03
+ magrittr    * 1.5        2014-11-22
+ maptools      0.9-2      2017-03-25
+ Matrix        1.2-12     2017-11-15
+ matrixStats   0.52.2     2017-04-14
+ mbr         * 0.0.0.9083 2017-11-22
+ mcmcr       * 0.0.0.9029 2017-11-05
+ memoise       1.1.0      2017-04-21
+ methods     * 3.4.2      2017-10-04
+ mnormt        1.5-5      2016-10-15
+ munsell       0.4.3      2016-02-13
+ newdata     * 0.0.0.9010 2017-11-09
+ nlme          3.1-131    2017-02-06
+ parallel    * 3.4.2      2017-10-04
+ pkgconfig     2.0.1      2017-03-21
+ plyr        * 1.8.4      2016-06-08
+ png           0.1-7      2013-12-03
+ psych         1.7.8      2017-09-09
+ purrr       * 0.2.4      2017-10-18
+ R6            2.2.2      2017-06-17
+ raster      * 2.6-7      2017-11-13
+ Rcpp          0.12.14    2017-11-23
+ readr       * 1.1.1      2017-05-16
+ readxl      * 1.0.0      2017-04-18
+ rescale       0.0.0.9004 2017-10-15
+ reshape2      1.4.2      2016-10-22
+ rgdal       * 1.2-16     2017-11-21
+ rlang         0.1.4      2017-11-05
+ rpdo        * 0.2.2.9000 2017-10-19
+ rstan       * 2.16.2     2017-07-03
+ rstudioapi    0.7        2017-09-07
+ scales      * 0.5.0      2017-08-24
+ sf          * 0.5-5      2017-10-31
+ smbr        * 0.0.0.9017 2017-11-05
+ sp          * 1.2-5      2017-06-29
+ StanHeaders * 2.16.0-1   2017-07-03
+ stats       * 3.4.2      2017-10-04
+ stats4        3.4.2      2017-10-04
+ stringi       1.1.6      2017-11-17
+ stringr     * 1.2.0      2017-02-18
+ testthat    * 1.0.2      2016-04-23
+ tibble        1.3.4      2017-08-22
+ tidyr       * 0.7.2      2017-10-16
+ tidyselect    0.2.3      2017-11-06
+ timer         0.0.1      2017-10-15
+ TMB           1.7.11     2017-08-09
+ tmbr        * 0.0.0.9035 2017-11-02
+ tools         3.4.2      2017-10-04
+ udunits2      0.13       2016-11-17
+ units       * 0.4-6      2017-08-27
+ utils       * 3.4.2      2017-10-04
+ withr         2.1.0      2017-11-01
+ yaml          2.1.14     2016-11-12
+ source                                    
+ cran (@1.4-5)                             
+ cran (@0.2.0)                             
+ cran (@0.1-5)                             
+ local                                     
+ cran (@1.2)                               
+ cran (@0.1)                               
+ cran (@0.2)                               
+ CRAN (R 3.4.2)                            
+ cran (@1.1.0)                             
+ CRAN (R 3.4.2)                            
+ CRAN (R 3.4.0)                            
+ cran (@0.19-1)                            
+ CRAN (R 3.4.2)                            
+ cran (@1.3-2)                             
+ local                                     
+ CRAN (R 3.4.1)                            
+ local                                     
+ local                                     
+ cran (@0.7)                               
+ CRAN (R 3.4.2)                            
+ CRAN (R 3.4.0)                            
+ cran (@1.0.11)                            
+ cran (@0.7.4)                             
+ CRAN (R 3.4.0)                            
+ cran (@1.4.3)                             
+ CRAN (R 3.4.2)                            
+ cran (@2.2.1)                             
+ CRAN (R 3.4.0)                            
+ CRAN (R 3.4.2)                            
+ local                                     
+ local                                     
+ local                                     
+ cran (@2.3)                               
+ cran (@0.2.0)                             
+ CRAN (R 3.4.3)                            
+ cran (@0.3.14)                            
+ cran (@1.0.8)                             
+ cran (@0.3)                               
+ CRAN (R 3.4.2)                            
+ CRAN (R 3.4.2)                            
+ CRAN (R 3.4.2)                            
+ CRAN (R 3.4.0)                            
+ CRAN (R 3.4.0)                            
+ CRAN (R 3.4.2)                            
+ cran (@0.52.2)                            
+ local                                     
+ local                                     
+ CRAN (R 3.4.0)                            
+ local                                     
+ cran (@1.5-5)                             
+ cran (@0.4.3)                             
+ local                                     
+ CRAN (R 3.4.2)                            
+ local                                     
+ cran (@2.0.1)                             
+ cran (@1.8.4)                             
+ cran (@0.1-7)                             
+ CRAN (R 3.4.2)                            
+ CRAN (R 3.4.2)                            
+ CRAN (R 3.4.0)                            
+ CRAN (R 3.4.2)                            
+ CRAN (R 3.4.3)                            
+ cran (@1.1.1)                             
+ cran (@1.0.0)                             
+ Github (poissonconsulting/rescale@5043b75)
+ cran (@1.4.2)                             
+ CRAN (R 3.4.3)                            
+ CRAN (R 3.4.2)                            
+ local                                     
+ CRAN (R 3.4.2)                            
+ CRAN (R 3.4.1)                            
+ cran (@0.5.0)                             
+ CRAN (R 3.4.2)                            
+ local                                     
+ cran (@1.2-5)                             
+ cran (@2.16.0-)                           
+ local                                     
+ local                                     
+ CRAN (R 3.4.2)                            
+ cran (@1.2.0)                             
+ CRAN (R 3.4.0)                            
+ cran (@1.3.4)                             
+ CRAN (R 3.4.2)                            
+ CRAN (R 3.4.2)                            
+ Github (poissonconsulting/timer@3d43750)  
+ cran (@1.7.11)                            
+ local                                     
+ local                                     
+ cran (@0.13)                              
+ cran (@0.4-6)                             
+ local                                     
+ CRAN (R 3.4.2)                            
+ cran (@2.1.14)                            

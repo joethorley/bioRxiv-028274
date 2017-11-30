@@ -32,7 +32,7 @@ if (getDoParWorkers() == 1) {
   registerDoParallel(4)
 }
 
-set_analysis_mode("report")
+set_analysis_mode("paper")
 
 theme_set(theme_grey(base_size = 10))
 theme_replace(axis.ticks        = element_line(colour = "black"),
