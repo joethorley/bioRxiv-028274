@@ -25,12 +25,12 @@ ggplot(data = data, aes(x = fit, y = residual)) +
   geom_point(alpha = 1/5) +
   expand_limits(y = 0)
 
-coef_full <- coef_profile(analyses[["full"]])
+coef_full <- coef(analyses[["full"]])
 print(coef_full)
 
 write_csv(coef_full, "output/tables/lek-coef-full.csv")
 
-coef_mmi <- coef_profile(analyses)
+coef_mmi <- coef(analyses)
 print(coef_mmi)
 
 write_csv(coef_mmi, "output/tables/lek-coef-mmi.csv")

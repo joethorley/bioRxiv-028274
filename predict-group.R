@@ -21,12 +21,12 @@ ggplot(data = data, aes(x = Year, y = residual)) +
   facet_wrap(~Group) +
   geom_point()
 
-coef_full <- coef_profile(analyses[["full"]])
+coef_full <- coef(analyses[["full"]])
 print(coef_full)
 
 write_csv(coef_full, "output/tables/group-coef-full.csv")
 
-coef_mmi <- coef_profile(analyses)
+coef_mmi <- coef(analyses)
 print(coef_mmi)
 
 write_csv(coef_mmi, "output/tables/group-coef-mmi.csv")
