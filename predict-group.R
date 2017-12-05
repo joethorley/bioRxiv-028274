@@ -47,7 +47,8 @@ effect_mmi$Type <- "Averaged"
 effect <- bind_rows(effect_bayesian, effect_full, effect_mmi)
 effect$Type %<>% factor(levels = c("Averaged", "Full", "Bayesian"))
 
-effect$Term <- str_replace(effect$term, "Area", "Oil and Gas")
+effect$Term <- str_replace(effect$term, "Area", "Oil and Gas (A)")
+effect$Term %<>% str_replace("PDO Index", "PDO Index (B)")
 
 print(ggplot(data = effect, aes(x = Type, y = estimate)) +
         facet_wrap(~Term) +
