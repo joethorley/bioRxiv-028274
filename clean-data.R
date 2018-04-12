@@ -39,8 +39,7 @@ leks %<>%
   st_transform("+init=epsg:26913") %>%
   st_crop(wyoming) %>%
   st_join(groups) %>%
-  filter(!is.na(Group)) %>%
-  filter(Group != "Upper Snake River")
+  filter(!is.na(Group))
 
 counts %<>%
   rename(Lek = LekID, Males = Male) %>%
