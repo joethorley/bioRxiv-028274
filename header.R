@@ -1,5 +1,3 @@
-drat::addRepo("poissonconsulting")
-
 library(foreach)
 library(doParallel)
 library(ggplot2)
