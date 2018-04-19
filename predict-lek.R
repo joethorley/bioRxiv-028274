@@ -182,17 +182,23 @@ data %<>% mutate(PDO = 0,
                  Lek = factor(Lek, levels = levels(data_set$Lek)),
                  Males = 1L)
 
-with <- derive_data(analysis, new_data = data)
+rm(analyses)
+rm(area_lagged)
+rm(lek)
+rm(pdo_lagged)
 
-with %<>% group_by(Year, Group) %>%
+derive <- mcmc_derive_data(analysis, new_data = data)
+
+derive %<>% group_by(Year, Group) %>%
   summarise() %>%
   ungroup()
 
-without <- derive_data(analysis, new_data = mutate(data, Area = 0))
+saveRDS(derive, "output/lek/with.rds")
 
-without %<>% group_by(Year, Group) %>%
+derive <- mcmc_derive_data(analysis, new_data = mutate(data, Area = 0))
+
+derive %<>% group_by(Year, Group) %>%
   summarise() %>%
   ungroup()
 
-saveRDS(with, "output/lek/with.rds")
-saveRDS(without, "output/lek/without.rds")
+saveRDS(derive, "output/lek/without.rds")
