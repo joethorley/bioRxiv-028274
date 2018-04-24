@@ -18,8 +18,6 @@ process_data <- function(x) {
       Area = mean(Area),
       PDO = first(PDO)) %>%
     ungroup() %>%
-    filter(Leks >= min_leks) %>%
-    select(-Leks) %>%
     ddply("Group", trim_males, min_years = min_years, last_year = last_year) %>%
     mutate(
       Annual = factor(Year, levels = min(Year):max(Year)),
