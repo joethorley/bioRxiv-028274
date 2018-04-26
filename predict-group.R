@@ -40,9 +40,9 @@ effect_full <- get_effects(coef_full)
 effect_mmi <- get_effects(coef_mmi)
 effect_bayesian <- get_effects(coef_bayesian)
 
-effect_bayesian$Type <- "Bayesian"
 effect_full$Type <- "Full"
 effect_mmi$Type <- "Averaged"
+effect_bayesian$Type <- "Bayesian"
 
 effect <- bind_rows(effect_bayesian, effect_full, effect_mmi)
 effect$Type %<>% factor(levels = c("Averaged", "Full", "Bayesian"))
@@ -70,9 +70,10 @@ print(
   ggplot(data = data, aes(x = Year, y = Males)) +
     facet_wrap(~GroupABC) +
     geom_line(aes(y = fit)) +
-    geom_point() +
+    geom_point(aes(alpha = sqrt(Leks))) +
     scale_x_continuous("Year") +
     scale_y_continuous("Density (males/lek)", labels = comma) +
+    scale_alpha("Weighting", breaks = c(1,5,10,15), limits = c(0,15)) +
     expand_limits(y = 0)
 )
 
@@ -170,8 +171,8 @@ data_set <- new_data(data)
 data %<>% mutate(PDO = 0,
                  Annual = data_set$Annual)
 
-with <- derive_data(analysis, new_data = data, term = "kappa")
-without <- derive_data(analysis, new_data = mutate(data, Area = 0), term = "kappa")
+with <- mcmc_derive_data(analysis, new_data = data, term = "kappa")
+without <- mcmc_derive_data(analysis, new_data = mutate(data, Area = 0), term = "kappa")
 
 saveRDS(with, "output/group/with.rds")
 saveRDS(without, "output/group/without.rds")

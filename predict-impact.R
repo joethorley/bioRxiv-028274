@@ -6,9 +6,9 @@ without_lek <- readRDS("output/lek/without.rds")
 with_group <- readRDS("output/group/with.rds")
 without_group <- readRDS("output/group/without.rds")
 
-loss_lek <- combine_values(with_lek, without_lek, by = c("Group", "Year"), fun = function(x) (x[1] - x[2]) / x[2])
+loss_lek <- combine_samples(with_lek, without_lek, by = c("Group", "Year"), fun = function(x) (x[1] - x[2]) / x[2])
 
-loss_group <- combine_values(with_group, without_group, by = c("Group", "Year"), fun = function(x) (x[1] - x[2]) / x[2])
+loss_group <- combine_samples(with_group, without_group, by = c("Group", "Year"), fun = function(x) (x[1] - x[2]) / x[2])
 
 loss_lek %<>% coef()
 loss_group %<>% coef()
@@ -44,13 +44,13 @@ without_group %<>% group_by(Year) %>%
   summarise() %>%
   ungroup()
 
-loss_lek <- combine_values(with_lek, without_lek, by = "Year", fun = function(x) (x[1] - x[2]) / x[2])
+loss_lek <- combine_samples(with_lek, without_lek, by = "Year", fun = function(x) (x[1] - x[2]) / x[2])
 
-loss_group <- combine_values(with_group, without_group, by = "Year", fun = function(x) (x[1] - x[2]) / x[2])
+loss_group <- combine_samples(with_group, without_group, by = "Year", fun = function(x) (x[1] - x[2]) / x[2])
 
-names(loss_group$mcmcr) <- "prediction"
+names(loss_group$mcmc) <- "prediction"
 
-geq <- combine_values(loss_lek, loss_group, by = "Year", function(x) {ifelse(x[1] > x[2], 0, 1)})
+geq <- combine_samples(loss_lek, loss_group, by = "Year", function(x) {ifelse(x[1] > x[2], 0, 1)})
 
 geq %<>% coef(estimate = mean) %>%
   filter(Year == 2016)
