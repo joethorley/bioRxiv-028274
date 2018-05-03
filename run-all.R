@@ -19,6 +19,10 @@ source("manipulate-lek.R")
 source("analyse-lek.R")
 source("predict-lek.R")
 
+source("manipulate-density.R")
+source("analyse-density.R")
+source("predict-density.R")
+
 source("manipulate-group.R")
 source("analyse-group.R")
 source("predict-group.R")

@@ -11,8 +11,6 @@ files %<>%
 
 names(data) <- files
 
-set_analysis_mode("quick")
-
 analyses <- analyse(model_bayesian, data = data)
 
 saveRDS(analyses, "output/density_analyses.rds")
