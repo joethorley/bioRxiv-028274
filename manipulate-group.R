@@ -6,18 +6,23 @@ files <- list.files("output/tidy", pattern = str_c("^data_", dist, "_"), full.na
 
 data <- lapply(files, readRDS)
 
+
 process_data <- function(x) {
+  density <- readRDS("output/data/density.rds")
+
+  density %<>% filter(Percent >= 0.1, Surveyed >= 5) %>%
+    select(Year, Group, Males = estimate, SD = sd, Leks, Surveyed)
+
   x %<>%
     group_by(Lek, Year, Group) %>%
     summarise(Males = mean(Males), Area = first(Area), PDO = first(PDO)) %>%
     ungroup() %>%
     group_by(Group, Year) %>%
     summarise(
-      Leks = sum(!is.na(Males)),
-      Males = mean(Males, na.rm = TRUE),
       Area = mean(Area),
       PDO = first(PDO)) %>%
     ungroup() %>%
+    inner_join(density, by = c("Year", "Group")) %>%
     ddply("Group", trim_males, min_years = min_years, last_year = last_year) %>%
     mutate(
       Annual = factor(Year, levels = min(Year):max(Year)),

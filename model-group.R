@@ -5,7 +5,6 @@ model  <- model(
   Type objective_function<Type>::operator() () {
 
   DATA_MATRIX(Males);
-  DATA_MATRIX(Leks);
   DATA_MATRIX(PDO);
   DATA_MATRIX(Area);
   DATA_IVECTOR(FirstAnnual);
@@ -16,19 +15,16 @@ model  <- model(
   PARAMETER(bDensity);
   PARAMETER(bPDO);
   PARAMETER(bArea);
-  PARAMETER(bInitialIntercept);
   PARAMETER_VECTOR(bInitial);
   PARAMETER_VECTOR(bGroup);
   PARAMETER_VECTOR(bAnnual);
   PARAMETER_MATRIX(bProcess);
   PARAMETER(log_sGroup);
-  PARAMETER(log_sInitial);
   PARAMETER(log_sAnnual);
   PARAMETER(log_sProcess);
   PARAMETER(log_sObservation);
 
   Type sGroup = exp(log_sGroup);
-  Type sInitial = exp(log_sInitial);
   Type sAnnual = exp(log_sAnnual);
   Type sProcess = exp(log_sProcess);
   Type sObservation = exp(log_sObservation);
@@ -50,17 +46,16 @@ model  <- model(
   }
 
   for(i = 0; i < nGroup; i++) {
-  nll -= dnorm(bInitial(i), bInitialIntercept, sInitial, true);
   nll -= dnorm(bGroup(i), Type(0), sGroup, true);
 
   log_eMales(i,FirstAnnual(i)-1) = bIntercept + (bDensity + 1 + bGroup(i)) * bInitial(i) + bArea * Area(i,FirstAnnual(i)-1) + bPDO * PDO(i,FirstAnnual(i)-1) + bAnnual(FirstAnnual(i)-1) + bProcess(i,FirstAnnual(i)-1);
 
-  nll -= dnorm(log(Males(i,FirstAnnual(i)-1)), log_eMales(i,FirstAnnual(i)-1), sObservation / sqrt(Leks(i,FirstAnnual(i)-1)), true);
+  nll -= dnorm(log(Males(i,FirstAnnual(i)-1)), log_eMales(i,FirstAnnual(i)-1), sObservation, true);
 
   for(j = FirstAnnual(i); j < nAnnual; j++) {
   log_eMales(i,j) = bIntercept + (bDensity + 1 + bGroup(i)) * log_eMales(i,j-1) + bArea * Area(i,j) + bPDO * PDO(i,j) + bAnnual(j) + bProcess(i,j);
 
-  nll -= dnorm(log(Males(i,j)), log_eMales(i,j), sObservation / sqrt(Leks(i,j)), true);
+  nll -= dnorm(log(Males(i,j)), log_eMales(i,j), sObservation, true);
   }
   }
   ADREPORT(log_eMales);
@@ -72,7 +67,7 @@ for(i in 1:length(Males)) {
 prediction[i] <- bIntercept + (bDensity + 1 + bGroup[Group[i]]) * log(Males[i]) + bPDO * PDO[i] + bArea * Area[i] + bAnnual[Annual[i]]
 kappa[i] <- exp(-(bIntercept + bPDO * PDO[i] + bArea * Area[i] + bAnnual[Annual[i]])  / (bDensity + bGroup[Group[i]]))
 fit[i] <- log_eMales[Group[i], Annual[i]]
-residual[i] <- (log(Males[i]) - fit[i]) / (exp(log_sObservation) / sqrt(Leks[i]))
+residual[i] <- (log(Males[i]) - fit[i]) / exp(log_sObservation)
 }
 ",
 modify_data = function(data) {
@@ -83,7 +78,7 @@ modify_data = function(data) {
       reshape2::acast(Group ~ Annual, value.var = ".")
     x
   }
-  data[c("Males", "Leks", "PDO", "Area")] %<>%
+  data[c("Males", "PDO", "Area")] %<>%
     lapply(arrayize)
 
   data$FirstAnnual <- apply(data$Males, 1, function(x) {min(which(!is.na(x)))})
@@ -96,12 +91,10 @@ gen_inits = function(data) {
   inits$bDensity <- 0
   inits$bPDO <- 0
   inits$bArea <- 0
-  inits$bInitialIntercept <- 0
   inits$bGroup <- rep(0, data$nGroup)
   inits$bAnnual <- rep(0, data$nAnnual)
   inits$bProcess <- matrix(0, nrow = data$nGroup, ncol = data$nAnnual)
-  inits$bInitial <- rep(0, data$nGroup)
-  inits$log_sInitial <- 0
+  inits$bInitial <- rep(3, data$nGroup)
   inits$log_sGroup <- 0
   inits$log_sAnnual <- 0
   inits$log_sProcess <- 0
@@ -110,8 +103,8 @@ gen_inits = function(data) {
   inits
 },
 derived = "log_eMales",
-random_effects = list(bInitial = "Group", bGroup = "Group", bAnnual = "Annual", bProcess = c("Group", "Annual")),
-select_data = list("Males" = 1, "PDO*" = 1, "Area*" = 1, Leks = c(1L, 1000L),
+random_effects = list(bGroup = "Group", bAnnual = "Annual", bProcess = c("Group", "Annual")),
+select_data = list("Males" = 1, "PDO*" = 1, "Area*" = 1,
                    Annual = factor(1), Group = factor(1)),
 drops = list("bPDO", "bArea")
 )
@@ -122,7 +115,6 @@ model_bayesian  <- update_model(model,
   int nAnnual;
 
   matrix[nGroup,nAnnual] Males;
-  matrix[nGroup,nAnnual] Leks;
   matrix[nGroup,nAnnual] PDO;
   matrix[nGroup,nAnnual] Area;
 
@@ -134,7 +126,6 @@ parameters {
   real bDensity;
   real bPDO;
   real bArea;
-  real bInitialIntercept;
 
   vector[nAnnual] bAnnual;
   vector[nGroup] bGroup;
@@ -142,7 +133,6 @@ parameters {
 
   matrix[nGroup,nAnnual] bProcess;
 
-  real log_sInitial;
   real log_sGroup;
   real log_sAnnual;
   real log_sProcess;
@@ -150,7 +140,6 @@ parameters {
 }
 
 transformed parameters {
-  real sInitial = exp(log_sInitial);
   real sGroup = exp(log_sGroup);
   real sAnnual = exp(log_sAnnual);
   real sProcess = exp(log_sProcess);
@@ -165,26 +154,24 @@ transformed parameters {
   bDensity ~ normal(0, 5);
   bPDO ~ normal(0, 5);
   bArea ~ normal(0, 5);
-  bInitialIntercept ~ normal(0, 5);
 
-  log_sInitial ~ normal(0, 5);
   log_sAnnual ~ normal(0, 5);
   log_sGroup ~ normal(0, 5);
   log_sProcess ~ normal(0, 5);
   log_sObservation ~ normal(0, 5);
 
+  bInitial ~ normal(0, 5);
   bAnnual ~ normal(0, sAnnual);
-  bInitial ~ normal(0, sInitial);
   bGroup ~ normal(0, sGroup);
 
   for(i in 1:nGroup) {
   bProcess[i,FirstAnnual[i]] ~ normal(0, sProcess);
   log_eMales[i,FirstAnnual[i]] = bIntercept + (bDensity + 1 + bGroup[i]) * bInitial[i] + bArea * Area[i,FirstAnnual[i]] + bPDO * PDO[i,FirstAnnual[i]] + bAnnual[FirstAnnual[i]] + bProcess[i,FirstAnnual[i]];
-  Males[i,FirstAnnual[i]] ~ lognormal(log_eMales[i,FirstAnnual[i]], sObservation / sqrt(Leks[i,FirstAnnual[i]]));
+  Males[i,FirstAnnual[i]] ~ lognormal(log_eMales[i,FirstAnnual[i]], sObservation);
   for(j in (FirstAnnual[i]+1):nAnnual) {
   bProcess[i,j] ~ normal(0, sProcess);
   log_eMales[i,j] = bIntercept + (bDensity + 1 + bGroup[i]) * log_eMales[i,j-1] + bArea * Area[i,j] + bPDO * PDO[i,j] + bAnnual[j] + bProcess[i,j];
-  Males[i,j] ~ lognormal(log_eMales[i,j], sObservation / sqrt(Leks[i,j]));
+  Males[i,j] ~ lognormal(log_eMales[i,j], sObservation);
   }
 }
 }",
@@ -201,13 +188,12 @@ kappa[i] <- exp(-(bIntercept + bPDO * PDO[i] + bArea * Area[i] + bAnnual[Annual[
         reshape2::acast(Group ~ Annual, value.var = ".")
       x
     }
-    data[c("Males", "Leks", "PDO", "Area")] %<>%
+    data[c("Males", "PDO", "Area")] %<>%
       lapply(arrayize)
 
     data$FirstAnnual <- apply(data$Males, 1, function(x) {min(which(!is.na(x)))})
 
     data$Males[is.na(data$Males)] <- 1L
-    data$Leks[is.na(data$Leks)] <- 1
     data$PDO[is.na(data$PDO)] <- 0
     data$Area[is.na(data$Area)] <- 0
 
@@ -216,14 +202,13 @@ kappa[i] <- exp(-(bIntercept + bPDO * PDO[i] + bArea * Area[i] + bAnnual[Annual[
   gen_inits = function(data) {
     inits <- list()
 
-    inits$log_sObservation <- -0.3
-    inits$log_sInitial <- 1
+    inits$log_sObservation <- -3
     inits$log_sProcess <- -2
-    inits$log_sAnnual <- -1.5
+    inits$log_sAnnual <- -2
     inits$log_sGroup <- -3
-    inits$bDensity <- -0.4
+    inits$bInitial <- rep(3, data$nGroup)
+    inits$bDensity <- -0.5
     inits$bIntercept <- 1
-    inits$bInitialIntercept <- 2.9
     inits
   },
   derived = character(0),

@@ -1,52 +1,27 @@
 model_bayesian <- model(
-"data {
+"model {
+  bIntercept ~ dnorm(0, 5^-2)
+  log_sAnnual ~ dnorm(0, 5^-2)
+  log_sLek ~ dnorm(0, 5^-2)
+  log_sLekAnnual ~ dnorm(0, 5^-2)
 
-  int nAnnual;
-  int nLek;
-  int nObs;
+  log(sAnnual) <- log_sAnnual
+  log(sLek) <- log_sLek
+  log(sLekAnnual) <- log_sLekAnnual
 
-  int Annual[nObs];
-  int Lek[nObs];
-
-  int Males[nObs];
-}
-
-parameters {
-  real bIntercept;
-  vector[nAnnual] bAnnual;
-  vector[nLek] bLek;
-  matrix[nLek, nAnnual] bLekAnnual;
-
-  real log_sAnnual;
-  real log_sLek;
-  real log_sLekAnnual;
-  real log_bPhi;
-}
-
-transformed parameters{
-  real sAnnual = exp(log_sAnnual);
-  real sLek = exp(log_sLek);
-  real sLekAnnual = exp(log_sLekAnnual);
-}
-
-model {
-  vector[nObs] eMales;
-
-  bIntercept ~ normal(0, 5);
-  log_sAnnual ~ normal(0, 5);
-  log_sLek ~ normal(0, 5);
-  log_sLekAnnual ~ normal(0, 5);
-
-  bAnnual ~ normal(0, sAnnual);
-  bLek ~ normal(0, sLek);
-
-  for(j in 1:nAnnual) {
-    bLekAnnual[,j] ~ normal(0, sLekAnnual);
+  for(i in 1:nAnnual) {
+    bAnnual[i] ~ dnorm(0, sAnnual^-2)
+  }
+  for(i in 1:nLek) {
+    bLek[i] ~ dnorm(0, sLek^-2)
+    for(j in 1:nAnnual) {
+      bLekAnnual[i,j] ~ dnorm(0, sLekAnnual^-2)
+    }
   }
 
   for(i in 1:nObs) {
-    eMales[i] = exp(bIntercept + bLek[Lek[i]] + bAnnual[Annual[i]] + bLekAnnual[Lek[i],Annual[i]]);
-    Males[i] ~ poisson(eMales[i]);
+    log(eMales[i]) = bIntercept + bLek[Lek[i]] + bAnnual[Annual[i]] + bLekAnnual[Lek[i],Annual[i]]
+    Males[i] ~ dpois(eMales[i])
   }
 }",
   gen_inits = function(data) {list()},
@@ -59,5 +34,5 @@ model {
 ",
   random_effects = list(bAnnual = "Annual", bLek = "Lek", bLekAnnual = c("Lek", "Annual")),
   select_data = list("Males" = 1L, Annual = factor(1), Lek = factor(1)),
-  nthin = 100L
+  nthin = 500L
 )
