@@ -6,7 +6,6 @@ files <- list.files("output/tidy", pattern = str_c("^data_", dist, "_"), full.na
 
 data <- lapply(files, readRDS)
 
-
 process_data <- function(x) {
   density <- readRDS("output/data/density.rds")
 

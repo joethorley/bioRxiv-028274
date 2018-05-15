@@ -182,6 +182,23 @@ data %<>% mutate(PDO = 0,
                  Lek = factor(Lek, levels = levels(data_set$Lek)),
                  Males = 1L)
 
+population <- data %>%
+  inner_join(select(lek, Lek, Size = estimate), by = "Lek") %>%
+  group_by(Group, Year) %>%
+  summarise(SizePopulation = mean(Size), AreaPopulation = mean(Area), LeksPopulation = n()) %>%
+  ungroup()
+
+sampled <- data_set(analysis) %>%
+  inner_join(select(lek, Lek, Size = estimate), by = "Lek") %>%
+  group_by(Group, Year) %>%
+  summarise(SizeSurveyed = mean(Size), AreaSurveyed = mean(Area), LeksSurveyed = n()) %>%
+  ungroup()
+
+sampled %<>% left_join(population, ., by = c("Group", "Year")) %>%
+  replace_na(list(LeksSurveyed = 0))
+
+saveRDS(sampled, "output/lek/sampled.rds")
+
 rm(analyses)
 rm(area_lagged)
 rm(lek)
