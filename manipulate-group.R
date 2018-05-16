@@ -1,5 +1,40 @@
 source("header.R")
 
+sampled <- readRDS("output/lek/sampled.rds")
+
+sampled %<>% mutate(ProportionSampled = LeksSurveyed / LeksPopulation,
+                    ProportionSize = SizeSurveyed / SizePopulation,
+                    ProportionArea = AreaSurveyed / AreaPopulation)
+
+sampled$GroupABC <- add_ABC(sampled$Group)
+
+print(
+  ggplot(data = sampled, aes(x = Year, y = ProportionSize)) +
+    facet_wrap(~GroupABC) +
+    geom_line() +
+    geom_point(aes(alpha = ProportionSampled, size = LeksSurveyed)) +
+    scale_y_continuous("Lek Size Bias (%)", labels = percent) +
+    scale_x_continuous("Year") +
+    expand_limits(y = 0)
+)
+
+ggsave("output/plots/lek-size-bias.png", width = 8, height = 8, dpi = dpi)
+
+print(
+  ggplot(data = sampled, aes(x = Year, y = ProportionArea)) +
+    facet_wrap(~GroupABC) +
+    geom_line() +
+    geom_point(aes(alpha = ProportionSampled, size = LeksSurveyed)) +
+    scale_y_continuous("Lek Disturbance Bias (%)", labels = percent) +
+    scale_x_continuous("Year") +
+    expand_limits(y = 0)
+)
+
+ggsave("output/plots/lek-disturbance-bias.png", width = 8, height = 8, dpi = dpi)
+
+sampled %<>% filter(LeksSurveyed >= 5, LeksSurveyed / LeksPopulation >= 0.2) %>%
+  mutate(Group = as.character(Group))
+
 dist <- readRDS("output/values/dist.rds")
 
 files <- list.files("output/tidy", pattern = str_c("^data_", dist, "_"), full.names = TRUE)
@@ -7,21 +42,18 @@ files <- list.files("output/tidy", pattern = str_c("^data_", dist, "_"), full.na
 data <- lapply(files, readRDS)
 
 process_data <- function(x) {
-  density <- readRDS("output/data/density.rds")
-
-  density %<>% filter(Percent >= 0.1, Surveyed >= 5) %>%
-    select(Year, Group, Males = estimate, SD = sd, Leks, Surveyed)
-
   x %<>%
     group_by(Lek, Year, Group) %>%
     summarise(Males = mean(Males), Area = first(Area), PDO = first(PDO)) %>%
     ungroup() %>%
     group_by(Group, Year) %>%
     summarise(
+      Leks = sum(!is.na(Males)),
+      Males = mean(Males, na.rm = TRUE),
       Area = mean(Area),
       PDO = first(PDO)) %>%
     ungroup() %>%
-    inner_join(density, by = c("Year", "Group")) %>%
+    semi_join(sampled, by = c("Group", "Year")) %>%
     ddply("Group", trim_males, min_years = min_years, last_year = last_year) %>%
     mutate(
       Annual = factor(Year, levels = min(Year):max(Year)),

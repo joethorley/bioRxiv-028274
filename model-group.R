@@ -15,16 +15,19 @@ model  <- model(
   PARAMETER(bDensity);
   PARAMETER(bPDO);
   PARAMETER(bArea);
+  PARAMETER(bInitialIntercept);
   PARAMETER_VECTOR(bInitial);
   PARAMETER_VECTOR(bGroup);
   PARAMETER_VECTOR(bAnnual);
   PARAMETER_MATRIX(bProcess);
   PARAMETER(log_sGroup);
+  PARAMETER(log_sInitial);
   PARAMETER(log_sAnnual);
   PARAMETER(log_sProcess);
   PARAMETER(log_sObservation);
 
   Type sGroup = exp(log_sGroup);
+  Type sInitial = exp(log_sInitial);
   Type sAnnual = exp(log_sAnnual);
   Type sProcess = exp(log_sProcess);
   Type sObservation = exp(log_sObservation);
@@ -46,6 +49,7 @@ model  <- model(
   }
 
   for(i = 0; i < nGroup; i++) {
+  nll -= dnorm(bInitial(i), bInitialIntercept, sInitial, true);
   nll -= dnorm(bGroup(i), Type(0), sGroup, true);
 
   log_eMales(i,FirstAnnual(i)-1) = bIntercept + (bDensity + 1 + bGroup(i)) * bInitial(i) + bArea * Area(i,FirstAnnual(i)-1) + bPDO * PDO(i,FirstAnnual(i)-1) + bAnnual(FirstAnnual(i)-1) + bProcess(i,FirstAnnual(i)-1);
@@ -91,10 +95,12 @@ gen_inits = function(data) {
   inits$bDensity <- 0
   inits$bPDO <- 0
   inits$bArea <- 0
+  inits$bInitialIntercept <- 0
   inits$bGroup <- rep(0, data$nGroup)
   inits$bAnnual <- rep(0, data$nAnnual)
   inits$bProcess <- matrix(0, nrow = data$nGroup, ncol = data$nAnnual)
-  inits$bInitial <- rep(3, data$nGroup)
+  inits$bInitial <- rep(0, data$nGroup)
+  inits$log_sInitial <- 0
   inits$log_sGroup <- 0
   inits$log_sAnnual <- 0
   inits$log_sProcess <- 0
@@ -103,7 +109,7 @@ gen_inits = function(data) {
   inits
 },
 derived = "log_eMales",
-random_effects = list(bGroup = "Group", bAnnual = "Annual", bProcess = c("Group", "Annual")),
+random_effects = list(bInitial = "Group", bGroup = "Group", bAnnual = "Annual", bProcess = c("Group", "Annual")),
 select_data = list("Males" = 1, "PDO*" = 1, "Area*" = 1,
                    Annual = factor(1), Group = factor(1)),
 drops = list("bPDO", "bArea")
@@ -126,6 +132,7 @@ parameters {
   real bDensity;
   real bPDO;
   real bArea;
+  real bInitialIntercept;
 
   vector[nAnnual] bAnnual;
   vector[nGroup] bGroup;
@@ -133,6 +140,7 @@ parameters {
 
   matrix[nGroup,nAnnual] bProcess;
 
+  real log_sInitial;
   real log_sGroup;
   real log_sAnnual;
   real log_sProcess;
@@ -140,6 +148,7 @@ parameters {
 }
 
 transformed parameters {
+  real sInitial = exp(log_sInitial);
   real sGroup = exp(log_sGroup);
   real sAnnual = exp(log_sAnnual);
   real sProcess = exp(log_sProcess);
@@ -154,14 +163,16 @@ transformed parameters {
   bDensity ~ normal(0, 5);
   bPDO ~ normal(0, 5);
   bArea ~ normal(0, 5);
+  bInitialIntercept ~ normal(0, 5);
 
+  log_sInitial ~ normal(0, 5);
   log_sAnnual ~ normal(0, 5);
   log_sGroup ~ normal(0, 5);
   log_sProcess ~ normal(0, 5);
   log_sObservation ~ normal(0, 5);
 
-  bInitial ~ normal(0, 5);
   bAnnual ~ normal(0, sAnnual);
+  bInitial ~ normal(bInitialIntercept, sInitial);
   bGroup ~ normal(0, sGroup);
 
   for(i in 1:nGroup) {
@@ -202,13 +213,9 @@ kappa[i] <- exp(-(bIntercept + bPDO * PDO[i] + bArea * Area[i] + bAnnual[Annual[
   gen_inits = function(data) {
     inits <- list()
 
-    inits$log_sObservation <- -3
-    inits$log_sProcess <- -2
-    inits$log_sAnnual <- -2
-    inits$log_sGroup <- -3
-    inits$bInitial <- rep(3, data$nGroup)
-    inits$bDensity <- -0.5
-    inits$bIntercept <- 1
+    inits$bDensity <- -0.25
+    inits$bIntercept <- 0.75
+    inits$bInitialIntercept <- 2.9
     inits
   },
   derived = character(0),

@@ -73,4 +73,8 @@ saveRDS(analyses, "output/group/analyses_final.rds")
 
 analysis <- analyse(model_bayesian, data = data)
 
+pdf("output/group/mcmc.pdf")
+plot(analysis)
+dev.off()
+
 saveRDS(analysis, "output/group/analysis_bayesian.rds")
