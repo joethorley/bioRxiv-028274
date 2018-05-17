@@ -32,7 +32,7 @@ print(
 
 ggsave("output/plots/lek-disturbance-bias.png", width = 8, height = 8, dpi = dpi)
 
-sampled %<>% filter(LeksSurveyed >= 5, LeksSurveyed / LeksPopulation >= 0.2) %>%
+sampled %<>% filter(LeksSurveyed / LeksPopulation >= 0.1) %>%
   mutate(Group = as.character(Group))
 
 dist <- readRDS("output/values/dist.rds")

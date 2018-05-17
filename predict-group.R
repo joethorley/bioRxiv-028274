@@ -70,10 +70,9 @@ print(
   ggplot(data = data, aes(x = Year, y = Males)) +
     facet_wrap(~GroupABC) +
     geom_line(aes(y = fit)) +
-    geom_point(aes(alpha = sqrt(Leks))) +
+    geom_point() +
     scale_x_continuous("Year") +
     scale_y_continuous("Density (males/lek)", labels = comma) +
-    scale_alpha("Weighting", breaks = c(1,5,10,15), limits = c(0,15)) +
     expand_limits(y = 0)
 )
 

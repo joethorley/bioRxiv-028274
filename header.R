@@ -21,6 +21,7 @@ library(tidyr)
 library(tmbr)
 library(smbr)
 library(jmbr)
+library(sessioninfo)
 
 rm(list = ls())
 graphics.off()

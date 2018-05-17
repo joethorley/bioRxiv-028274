@@ -213,11 +213,16 @@ kappa[i] <- exp(-(bIntercept + bPDO * PDO[i] + bArea * Area[i] + bAnnual[Annual[
   gen_inits = function(data) {
     inits <- list()
 
-    inits$bDensity <- -0.25
-    inits$bIntercept <- 0.75
+    inits$log_sObservation <- -3
+    inits$log_sInitial <- -3
+    inits$log_sProcess <- -2
+    inits$log_sAnnual <- -1.5
+    inits$log_sGroup <- -3
+    inits$bDensity <- -0.4
+    inits$bIntercept <- 1
     inits$bInitialIntercept <- 2.9
     inits
   },
   derived = character(0),
-  nthin = 100L
+  nthin = 200L
 )
