@@ -25,4 +25,6 @@ source("predict-group.R")
 
 source("predict-impact.R")
 
+source("validate-group.R")
+
 source("session-info.R")
