@@ -52,7 +52,7 @@ model  <- model(
   nll -= dnorm(bInitial(i), bInitialIntercept, sInitial, true);
   nll -= dnorm(bGroup(i), Type(0), sGroup, true);
 
-  log_eMales(i,FirstAnnual(i)-1) = bIntercept + (bDensity + 1 + bGroup(i)) * bInitial(i) + bArea * Area(i,FirstAnnual(i)-1) + bPDO * PDO(i,FirstAnnual(i)-1) + bAnnual(FirstAnnual(i)-1) + bProcess(i,FirstAnnual(i)-1);
+  log_eMales(i,FirstAnnual(i)-1) = bIntercept + (bDensity + 1 + bGroup(i)) * bInitial(i) + bArea * Area(i,FirstAnnual(i)-1) + bPDO * PDO(i,FirstAnnual(i)-1) + bAnnual(FirstAnnual(i)-1);
 
   nll -= dnorm(log(Males(i,FirstAnnual(i)-1)), log_eMales(i,FirstAnnual(i)-1), sObservation, true);
 
@@ -159,17 +159,17 @@ transformed parameters {
 
   matrix[nGroup,nAnnual] log_eMales;
 
-  bIntercept ~ normal(0, 5);
-  bDensity ~ normal(0, 5);
-  bPDO ~ normal(0, 5);
   bArea ~ normal(0, 5);
+  bDensity ~ normal(0, 5);
   bInitialIntercept ~ normal(0, 5);
+  bIntercept ~ normal(0, 5);
+  bPDO ~ normal(0, 5);
 
-  log_sInitial ~ normal(0, 5);
   log_sAnnual ~ normal(0, 5);
   log_sGroup ~ normal(0, 5);
-  log_sProcess ~ normal(0, 5);
+  log_sInitial ~ normal(0, 5);
   log_sObservation ~ normal(0, 5);
+  log_sProcess ~ normal(0, 5);
 
   bAnnual ~ normal(0, sAnnual);
   bInitial ~ normal(bInitialIntercept, sInitial);
@@ -177,7 +177,7 @@ transformed parameters {
 
   for(i in 1:nGroup) {
   bProcess[i,FirstAnnual[i]] ~ normal(0, sProcess);
-  log_eMales[i,FirstAnnual[i]] = bIntercept + (bDensity + 1 + bGroup[i]) * bInitial[i] + bArea * Area[i,FirstAnnual[i]] + bPDO * PDO[i,FirstAnnual[i]] + bAnnual[FirstAnnual[i]] + bProcess[i,FirstAnnual[i]];
+  log_eMales[i,FirstAnnual[i]] = bIntercept + (bDensity + 1 + bGroup[i]) * bInitial[i] + bArea * Area[i,FirstAnnual[i]] + bPDO * PDO[i,FirstAnnual[i]] + bAnnual[FirstAnnual[i]];
   Males[i,FirstAnnual[i]] ~ lognormal(log_eMales[i,FirstAnnual[i]], sObservation);
   for(j in (FirstAnnual[i]+1):nAnnual) {
   bProcess[i,j] ~ normal(0, sProcess);
@@ -213,14 +213,16 @@ kappa[i] <- exp(-(bIntercept + bPDO * PDO[i] + bArea * Area[i] + bAnnual[Annual[
   gen_inits = function(data) {
     inits <- list()
 
-    inits$log_sObservation <- -3
-    inits$log_sInitial <- -3
-    inits$log_sProcess <- -2
+    inits$bArea <- 0
+    inits$bDensity <- -0.4
+    inits$bInitialIntercept <- 2.8
+    inits$bIntercept <- 1
+    inits$bPDO <- 0
     inits$log_sAnnual <- -1.5
     inits$log_sGroup <- -3
-    inits$bDensity <- -0.4
-    inits$bIntercept <- 1
-    inits$bInitialIntercept <- 2.9
+    inits$log_sInitial <- -1
+    inits$log_sObservation <- -3
+    inits$log_sProcess <- -2
     inits
   },
   derived = character(0),
