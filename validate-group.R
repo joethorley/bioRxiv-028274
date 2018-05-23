@@ -1,15 +1,18 @@
 source("header.R")
-source("model-group.R")
+source("model-group2.R")
 
 analyses <- readRDS("output/group/analyses_final.rds")
 analysis <- analyses[["full"]]
 
 data <- data_set(analysis)
 
-generate_data <- function(analysis) {
+generate_data <- function(analysis, bArea = NULL) {
 
   data <- data_set(analysis, modify = TRUE)
   estimates <- estimates(analysis)
+
+  if(!is.null(bArea))
+    data$bArea <- bArea
 
   males <- with(c(data, estimates), {
     sAnnual <- exp(log_sAnnual)
@@ -49,10 +52,27 @@ generate_data <- function(analysis) {
   print(data)
 }
 
-new_data <- generate_data(analysis)
+# do for 100
+new_data <- lapply(1:10, generate_data, analysis = analysis)
 
-new_analysis <- analyse(model, data = new_data)
+new_analyses <- analyse(model, data = new_data)
 
-print(coef(analysis))
-print(coef(new_analysis))
+coef <- coef(analysis)
+new_coefs <- lapply(new_analyses, coef)
 
+new_coefs %<>% bind_rows()
+
+new_coefs %<>% select(term, estimate, lower, upper)
+coef %<>% select(term, old_estimate = estimate)
+
+new_coefs %<>% inner_join(coef, by = "term")
+
+new_coefs %<>% mutate(within = old_estimate >= lower & old_estimate <= upper)
+
+new_coefs %<>% group_by(term) %>%
+  summarise(estimate = mean(estimate), lower = mean(lower), upper = mean(upper),
+            old_estimate = first(old_estimate),
+            within = sum(within) / n(), n = n()) %>%
+  ungroup()
+
+write_csv(new_coefs, "output/tables/group-validation.csv")
