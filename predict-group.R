@@ -60,7 +60,7 @@ print(ggplot(data = effect, aes(x = Type, y = estimate)) +
 
 ggsave("output/plots/effect-group.png", width = 4, height = 2.5, dpi = dpi)
 
-data$fit <- exp(predict(analyses[["full"]], new_data = data, term = "fit")$estimate)
+data$fit <- predict(analyses[["full"]], new_data = data, term = "fit")$estimate
 
 data %<>% complete(Year, Group)
 

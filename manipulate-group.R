@@ -35,6 +35,9 @@ ggsave("output/plots/lek-disturbance-bias.png", width = 8, height = 8, dpi = dpi
 sampled %<>% filter(LeksSurveyed / LeksPopulation >= 0.1) %>%
   mutate(Group = as.character(Group))
 
+#%>%
+#  filter(Group != "Upper Snake River")
+
 dist <- readRDS("output/values/dist.rds")
 
 files <- list.files("output/tidy", pattern = str_c("^data_", dist, "_"), full.names = TRUE)
@@ -53,10 +56,16 @@ process_data <- function(x) {
       Area = mean(Area),
       PDO = first(PDO)) %>%
     ungroup() %>%
-    semi_join(sampled, by = c("Group", "Year")) %>%
-    ddply("Group", trim_males, min_years = min_years, last_year = last_year) %>%
+    filter(!is.na(Males)) %>%
+    semi_join(sampled, by = c("Group", "Year"))
+
+  previous <- select(x, Year, Group, Males) %>%
+    mutate(Year = Year - 1) %>%
+    rename(Males1 = Males)
+
+  x %<>% inner_join(previous, by = c("Group", "Year")) %>%
     mutate(
-      Annual = factor(Year, levels = min(Year):max(Year)),
+      Annual = factor(Year),
       Group = factor(Group)
     )
   x

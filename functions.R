@@ -49,17 +49,6 @@ accumulate_wells <- function(x, first_year, last_year) {
   x
 }
 
-trim_males <- function(y, min_years, last_year) {
-  y %<>% filter(!is.na(Males))
-  y %<>% arrange(Year)
-  which <- which(diff(y$Year) > 1) %>% add(1L)
-  if (length(which))
-    y %<>% slice(-seq_len(max(which)))
-  if (nrow(y) < min_years || max(y$Year) != last_year)
-    return(NULL)
-  y
-}
-
 st_intersection_switch <- function(x,y) st_intersection(y,x)
 
 exp_minus1 <- function(x) exp(x) - 1
