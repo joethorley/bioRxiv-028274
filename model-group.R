@@ -19,18 +19,15 @@ model  <- model(
   PARAMETER_VECTOR(bInitial);
   PARAMETER_VECTOR(bGroup);
   PARAMETER_VECTOR(bAnnual);
-  PARAMETER_MATRIX(bProcess);
   PARAMETER(log_sGroup);
   PARAMETER(log_sInitial);
   PARAMETER(log_sAnnual);
   PARAMETER(log_sProcess);
-  PARAMETER(log_sObservation);
 
   Type sGroup = exp(log_sGroup);
   Type sInitial = exp(log_sInitial);
   Type sAnnual = exp(log_sAnnual);
   Type sProcess = exp(log_sProcess);
-  Type sObservation = exp(log_sObservation);
 
   matrix<Type> log_eMales = Males;
 
@@ -43,23 +40,17 @@ model  <- model(
   }
 
   for(i = 0; i < nGroup; i++) {
-  for(j = 0; j < nAnnual; j++){
-  nll -= dnorm(bProcess(i,j), Type(0), sProcess, true);
-  }
-  }
-
-  for(i = 0; i < nGroup; i++) {
   nll -= dnorm(bInitial(i), bInitialIntercept, sInitial, true);
   nll -= dnorm(bGroup(i), Type(0), sGroup, true);
 
   log_eMales(i,FirstAnnual(i)-1) = bIntercept + (bDensity + 1 + bGroup(i)) * bInitial(i) + bArea * Area(i,FirstAnnual(i)-1) + bPDO * PDO(i,FirstAnnual(i)-1) + bAnnual(FirstAnnual(i)-1);
 
-  nll -= dnorm(log(Males(i,FirstAnnual(i)-1)), log_eMales(i,FirstAnnual(i)-1), sObservation, true);
+  nll -= dnorm(log(Males(i,FirstAnnual(i)-1)), log_eMales(i,FirstAnnual(i)-1), sProcess, true);
 
   for(j = FirstAnnual(i); j < nAnnual; j++) {
-  log_eMales(i,j) = bIntercept + (bDensity + 1 + bGroup(i)) * log_eMales(i,j-1) + bArea * Area(i,j) + bPDO * PDO(i,j) + bAnnual(j) + bProcess(i,j);
+  log_eMales(i,j) = bIntercept + (bDensity + 1 + bGroup(i)) * log(Males(i,j-1)) + bArea * Area(i,j) + bPDO * PDO(i,j) + bAnnual(j);
 
-  nll -= dnorm(log(Males(i,j)), log_eMales(i,j), sObservation, true);
+  nll -= dnorm(log(Males(i,j)), log_eMales(i,j), sProcess, true);
   }
   }
   ADREPORT(log_eMales);
@@ -71,7 +62,7 @@ for(i in 1:length(Males)) {
 prediction[i] <- bIntercept + (bDensity + 1 + bGroup[Group[i]]) * log(Males[i]) + bPDO * PDO[i] + bArea * Area[i] + bAnnual[Annual[i]]
 kappa[i] <- exp(-(bIntercept + bPDO * PDO[i] + bArea * Area[i] + bAnnual[Annual[i]])  / (bDensity + bGroup[Group[i]]))
 fit[i] <- log_eMales[Group[i], Annual[i]]
-residual[i] <- (log(Males[i]) - fit[i]) / exp(log_sObservation)
+residual[i] <- (log(Males[i]) - fit[i]) / exp(log_sProcess)
 }
 ",
 modify_data = function(data) {
@@ -98,18 +89,16 @@ gen_inits = function(data) {
   inits$bInitialIntercept <- 0
   inits$bGroup <- rep(0, data$nGroup)
   inits$bAnnual <- rep(0, data$nAnnual)
-  inits$bProcess <- matrix(0, nrow = data$nGroup, ncol = data$nAnnual)
   inits$bInitial <- rep(0, data$nGroup)
   inits$log_sInitial <- 0
   inits$log_sGroup <- 0
   inits$log_sAnnual <- 0
   inits$log_sProcess <- 0
-  inits$log_sObservation <- 0
 
   inits
 },
 derived = "log_eMales",
-random_effects = list(bInitial = "Group", bGroup = "Group", bAnnual = "Annual", bProcess = c("Group", "Annual")),
+random_effects = list(bInitial = "Group", bGroup = "Group", bAnnual = "Annual"),
 select_data = list("Males" = 1, "PDO*" = 1, "Area*" = 1,
                    Annual = factor(1), Group = factor(1)),
 drops = list("bPDO", "bArea")
@@ -138,13 +127,10 @@ parameters {
   vector[nGroup] bGroup;
   vector[nGroup] bInitial;
 
-  matrix[nGroup,nAnnual] bProcess;
-
   real log_sInitial;
   real log_sGroup;
   real log_sAnnual;
   real log_sProcess;
-  real log_sObservation;
 }
 
 transformed parameters {
@@ -152,7 +138,6 @@ transformed parameters {
   real sGroup = exp(log_sGroup);
   real sAnnual = exp(log_sAnnual);
   real sProcess = exp(log_sProcess);
-  real sObservation = exp(log_sObservation);
 }
 
   model {
@@ -168,7 +153,6 @@ transformed parameters {
   log_sAnnual ~ normal(0, 5);
   log_sGroup ~ normal(0, 5);
   log_sInitial ~ normal(0, 5);
-  log_sObservation ~ normal(0, 5);
   log_sProcess ~ normal(0, 5);
 
   bAnnual ~ normal(0, sAnnual);
@@ -176,13 +160,11 @@ transformed parameters {
   bGroup ~ normal(0, sGroup);
 
   for(i in 1:nGroup) {
-  bProcess[i,FirstAnnual[i]] ~ normal(0, sProcess);
   log_eMales[i,FirstAnnual[i]] = bIntercept + (bDensity + 1 + bGroup[i]) * bInitial[i] + bArea * Area[i,FirstAnnual[i]] + bPDO * PDO[i,FirstAnnual[i]] + bAnnual[FirstAnnual[i]];
-  Males[i,FirstAnnual[i]] ~ lognormal(log_eMales[i,FirstAnnual[i]], sObservation);
+  Males[i,FirstAnnual[i]] ~ lognormal(log_eMales[i,FirstAnnual[i]], sProcess);
   for(j in (FirstAnnual[i]+1):nAnnual) {
-  bProcess[i,j] ~ normal(0, sProcess);
-  log_eMales[i,j] = bIntercept + (bDensity + 1 + bGroup[i]) * log_eMales[i,j-1] + bArea * Area[i,j] + bPDO * PDO[i,j] + bAnnual[j] + bProcess[i,j];
-  Males[i,j] ~ lognormal(log_eMales[i,j], sObservation);
+  log_eMales[i,j] = bIntercept + (bDensity + 1 + bGroup[i]) * log(Males[i,j-1]) + bArea * Area[i,j] + bPDO * PDO[i,j] + bAnnual[j];
+  Males[i,j] ~ lognormal(log_eMales[i,j], sProcess);
   }
 }
 }",
@@ -221,10 +203,9 @@ kappa[i] <- exp(-(bIntercept + bPDO * PDO[i] + bArea * Area[i] + bAnnual[Annual[
     inits$log_sAnnual <- -1.5
     inits$log_sGroup <- -3
     inits$log_sInitial <- -1
-    inits$log_sObservation <- -3
     inits$log_sProcess <- -2
     inits
   },
   derived = character(0),
-  nthin = 200L
+  nthin = 100L
 )
