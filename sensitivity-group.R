@@ -21,8 +21,6 @@ data <- list("1985 Mean" = data,
              "1985 Max" = data3,
              "1997 Max" = data4)
 
-model <- model(analyses[["full"]])
-
 analyses <- analyse(model, data = data)
 
 coefs <- lapply(analyses, coef)
