@@ -21,8 +21,17 @@ ggplot(data = data, aes(x = Year, y = residual)) +
   facet_wrap(~Group) +
   geom_point()
 
+ggplot(data = data, aes(x = Leks, y = abs(residual))) +
+  geom_point(aes(color = Group)) +
+  geom_smooth()
+
 coef_full <- coef(analyses[["full"]])
 print(coef_full)
+
+print(readRDS("output/values/area_lag_group.rds"))
+print(readRDS("output/values/pdo_lag_group.rds"))
+
+print(glance(analyses[["full"]]))
 
 write_csv(coef_full, "output/tables/group-coef-full.csv")
 

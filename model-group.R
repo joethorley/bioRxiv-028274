@@ -7,6 +7,7 @@ model  <- model(
   DATA_VECTOR(Males);
   DATA_VECTOR(Males1);
   DATA_VECTOR(PDO);
+  DATA_VECTOR(Leks);
   DATA_VECTOR(Area);
   DATA_FACTOR(Group);
   DATA_FACTOR(Annual);
@@ -18,6 +19,7 @@ model  <- model(
   PARAMETER(bDensity);
   PARAMETER(bPDO);
   PARAMETER(bArea);
+  PARAMETER(bLeks);
   PARAMETER_VECTOR(bGroup);
   PARAMETER_VECTOR(bAnnual);
   PARAMETER(log_sGroup);
@@ -26,9 +28,9 @@ model  <- model(
 
   Type sGroup = exp(log_sGroup);
   Type sAnnual = exp(log_sAnnual);
-  Type sProcess = exp(log_sProcess);
 
   vector<Type> log_eMales = Males;
+  vector<Type> eSProcess = Males;
 
   int i;
 
@@ -45,7 +47,8 @@ model  <- model(
   for(i = 0; i < nObs; i++) {
     log_eMales(i) = bIntercept + (bDensity + 1 + bGroup(Group(i))) * log(Males1(i)) + bArea * Area(i) + bPDO * PDO(i) + bAnnual(Annual(i));
 
-  nll -= dnorm(log(Males(i)), log_eMales(i), sProcess, true);
+  eSProcess(i) = exp(log_sProcess + bLeks * log(Leks(i)));
+  nll -= dnorm(log(Males(i)), log_eMales(i), eSProcess(i), true);
   }
   ADREPORT(log_eMales);
 
@@ -56,7 +59,8 @@ for(i in 1:length(Males)) {
 prediction[i] <- exp(bIntercept + (bDensity + 1 + bGroup[Group[i]]) * log(Males1[i]) + bPDO * PDO[i] + bArea * Area[i] + bAnnual[Annual[i]])
 kappa[i] <- exp(-(bIntercept + bPDO * PDO[i] + bArea * Area[i] + bAnnual[Annual[i]])  / (bDensity + bGroup[Group[i]]))
 fit[i] <- prediction[i]
-residual[i] <- (log(Males[i]) - log(fit[i])) / exp(log_sProcess)
+sProcess[i] <- exp(log_sProcess + bLeks * log(Leks[i]))
+residual[i] <- (log(Males[i]) - log(fit[i])) / sProcess[i]
 }
 ",
 gen_inits = function(data) {
@@ -64,6 +68,7 @@ gen_inits = function(data) {
   inits$bIntercept <- 0
   inits$bDensity <- 0
   inits$bPDO <- 0
+  inits$bLeks <- 0
   inits$bArea <- 0
   inits$bGroup <- rep(0, data$nGroup)
   inits$bAnnual <- rep(0, data$nAnnual)
@@ -75,7 +80,7 @@ gen_inits = function(data) {
 },
 random_effects = list(bGroup = "Group", bAnnual = "Annual"),
 select_data = list("Males" = c(1, 100), "Males1" = c(1, 100),
-                   "PDO*" = 1, "Area*" = 1,
+                   "PDO*" = 1, "Area*" = 1, Leks = c(1L, 300L),
                    Annual = factor(1), Group = factor(1)),
 drops = list("bPDO", "bArea")
 )
@@ -89,6 +94,7 @@ model_bayesian  <- update_model(model,
   real Males[nObs];
   real Males1[nObs];
   real Area[nObs];
+  int Leks[nObs];
   real PDO[nObs];
   int Group[nObs];
   int Annual[nObs];
@@ -97,6 +103,7 @@ model_bayesian  <- update_model(model,
 parameters {
   real bIntercept;
   real bDensity;
+  real bLeks;
   real bPDO;
   real bArea;
 
@@ -111,15 +118,16 @@ parameters {
 transformed parameters {
   real sGroup = exp(log_sGroup);
   real sAnnual = exp(log_sAnnual);
-  real sProcess = exp(log_sProcess);
 }
 
   model {
 
   vector[nObs] log_eMales;
+  vector[nObs] eSProcess;
 
   bArea ~ normal(0, 5);
   bDensity ~ normal(0, 5);
+  bLeks ~ normal(0, 5);
   bIntercept ~ normal(0, 5);
   bPDO ~ normal(0, 5);
 
@@ -132,7 +140,8 @@ transformed parameters {
 
   for(i in 1:nObs) {
   log_eMales[i] = bIntercept + (bDensity + 1 + bGroup[Group[i]]) * log(Males1[i]) + bArea * Area[i] + bPDO * PDO[i] + bAnnual[Annual[i]];
-  Males[i] ~ lognormal(log_eMales[i], sProcess);
+  eSProcess[i] = exp(log_sProcess + bLeks * log(Leks[i]));
+  Males[i] ~ lognormal(log_eMales[i], eSProcess[i]);
 }
 }",
 derived = character(0),
