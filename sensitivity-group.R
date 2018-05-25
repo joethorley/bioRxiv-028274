@@ -23,17 +23,48 @@ data <- list("1985 Mean" = data,
 
 analyses <- analyse(model, data = data)
 
-coefs <- lapply(analyses, coef)
+sds <- lapply(data, function(x) {
+  as.data.frame(lapply(select(x, Males, MaxMales, PDO), sd))})
 
-effects <- lapply(coefs, get_effects)
+sds %<>% bind_rows(.id = "Analysis")
 
-effects %<>% bind_rows(.id = "Analysis")
+sds %<>% gather("term", "sd", -Analysis)
 
-effects %<>% mutate(Year = word(Analysis, 1),
-                    Type = word(Analysis, 2))
+sds %<>% filter(term == "PDO" | str_detect(Analysis, "Max") == (term == "MaxMales"))
 
-effects$Term <- str_replace(effects$term, "Area", "Oil and Gas")
-effects$Term %<>% str_replace("PDO Index", "PDO Index")
+sds$term %<>% str_replace("PDO", "bPDO") %>%
+  str_replace("MaxMales|Males", "bArea")
+
+sds %<>% mutate(Year = word(Analysis, 1),
+                Type = word(Analysis, 2),
+                Type = factor(Type, levels = c("Mean", "Max")),
+                Analysis = NULL) %>%
+  arrange(Year, Type)
+
+sds %<>% ddply(.(term), function(x) mutate(x, sd = sd / first(sd)))
+
+coefs <- lapply(analyses, coef) %>%
+  bind_rows(.id = "Analysis")
+
+coefs %<>% mutate(Year = word(Analysis, 1),
+                  Type = word(Analysis, 2),
+                  Type = factor(Type, levels = c("Mean", "Max")),
+                  Analysis = NULL,
+                  sd = NULL) %>%
+  filter(term %in% c("bPDO", "bArea"))
+
+coefs %<>% inner_join(sds, by = c("term", "Year", "Type"))
+
+coefs %<>% mutate(estimate = estimate / sd,
+                  lower = lower / sd,
+                  upper = upper / sd)
+
+effects <- ddply(coefs, .(Year, Type), get_effects)
+
+effects$term %<>%
+  str_replace("Area", "Oil and Gas") %>%
+  str_replace("PDO Index", "PDO Index")
+
 
 effects$Year %<>% paste("-", last_year)
 
@@ -41,11 +72,11 @@ effects$Year[str_detect(effects$Year, "1985")] %<>% paste("(A)")
 effects$Year[str_detect(effects$Year, "1997")] %<>% paste("(B)")
 
 ggplot(data = effects, aes(x = Type, y = estimate)) +
-  facet_grid(Term ~ Year) +
+  facet_grid(term ~ Year) +
   geom_pointrange(aes(ymin = lower, ymax = upper)) +
   geom_hline(yintercept = 0, linetype = "dotted") +
   scale_x_discrete("Statistic") +
   scale_y_continuous("Effect on Subsequent Density (%)", labels = percent) +
-  expand_limits(y = c(0.33,-0.33))
+  expand_limits(y = 0)
 
 ggsave("output/plots/sensitivity-group.png", width = 4, height = 4, dpi = dpi)
