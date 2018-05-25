@@ -15,10 +15,10 @@ saveRDS(wyoming, "output/data/wyoming.rds")
 groups <- read_sf("data/groups")
 saveRDS(groups, "output/data/groups.rds")
 
-counts <- read_xlsx("data/grouse/SG Lek Observations 1948-2016.xlsx")
+counts <- read_xlsx("data/grouse/SG Lek Observations 1948-2016.xlsx", guess_max = 21474836)
 saveRDS(counts, "output/data/counts.rds")
 
-leks <- read_xlsx("data/grouse/SG Lek Locations & Descriptors 2016.xlsx")
+leks <- read_xlsx("data/grouse/SG Lek Locations & Descriptors 2016.xlsx", guess_max = 21474836)
 saveRDS(leks, "output/data/leks.rds")
 
 # conventional downloaded from

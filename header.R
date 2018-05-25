@@ -29,11 +29,11 @@ graphics.off()
 source("functions.R")
 
 if (getDoParWorkers() == 1) {
-  message("registering 4 workers")
-  registerDoParallel(4)
+  message("registering 3 workers")
+  registerDoParallel(3)
 }
 
-set_analysis_mode("paper")
+set_analysis_mode("report")
 
 theme_set(theme_grey(base_size = 10))
 theme_replace(axis.ticks        = element_line(colour = "black"),

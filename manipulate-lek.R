@@ -7,7 +7,11 @@ data <- lapply(files, readRDS)
 process_data <- function(x) {
   x %<>%
     group_by(Lek, Year, Group) %>%
-    summarise(Males = as.integer(round(mean(Males))), Area = first(Area), PDO = first(PDO)) %>%
+    summarise(MaxMales = as.integer(max(Males)),
+              Males = as.integer(round(mean(Males))),
+              Area = first(Area),
+              PDO = first(PDO),
+              Counts = n()) %>%
     ungroup() %>%
     na.omit() %>%
     mutate(

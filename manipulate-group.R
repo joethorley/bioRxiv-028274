@@ -43,21 +43,25 @@ data <- lapply(files, readRDS)
 process_data <- function(x) {
   x %<>%
     group_by(Lek, Year, Group) %>%
-    summarise(Males = mean(Males), Area = first(Area), PDO = first(PDO)) %>%
+    summarise(MaxMales = max(Males),
+              Males = mean(Males),
+              Area = first(Area), PDO = first(PDO)) %>%
     ungroup() %>%
     group_by(Group, Year) %>%
     summarise(
       Leks = sum(!is.na(Males)),
       Males = mean(Males, na.rm = TRUE),
+      MaxMales = mean(MaxMales, na.rm = TRUE),
       Area = mean(Area),
       PDO = first(PDO)) %>%
     ungroup() %>%
     filter(!is.na(Males)) %>%
     inner_join(select(sampled, Group, Year, ProportionSampled), by = c("Group", "Year"))
 
-  previous <- select(x, Year, Group, Males) %>%
-    mutate(Year = Year - 1L) %>%
-    rename(Males1 = Males)
+  previous <- select(x, Year, Group, Males, MaxMales) %>%
+    mutate(Year = Year + 1L) %>%
+    rename(Males1 = Males,
+           MaxMales1 = MaxMales)
 
   x %<>% inner_join(previous, by = c("Group", "Year")) %>%
     mutate(

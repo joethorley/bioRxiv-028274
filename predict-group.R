@@ -21,10 +21,6 @@ ggplot(data = data, aes(x = Year, y = residual)) +
   facet_wrap(~Group) +
   geom_point()
 
-ggplot(data = data, aes(x = Leks, y = abs(residual))) +
-  geom_point(aes(color = Group)) +
-  geom_smooth()
-
 coef_full <- coef(analyses[["full"]])
 print(coef_full)
 

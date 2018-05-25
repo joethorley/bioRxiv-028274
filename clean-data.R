@@ -41,17 +41,27 @@ leks %<>%
   st_join(groups) %>%
   filter(!is.na(Group))
 
+print_nrow <- function(x) {
+  print(nrow(x))
+  x
+}
+
 counts %<>%
   rename(Lek = LekID, Males = Male) %>%
   mutate(Date = as.Date(str_c(Year, Month, Day, sep = "-"))) %>%
-  filter(`Check?` == "Yes", Method == "Ground", Type %in% c("Count", "Survey")) %>%
   filter(!is.na(Date)) %>%
   mutate(Dayte = dayte(Date), Year = year(Date), Males = as.integer(Males),
          Year = as.integer(Year)) %>%
-  filter(Year %in% first_year:last_year) %>%
-  filter(Dayte >= as.Date("1972-04-01"), Dayte <= as.Date("1972-05-07")) %>%
   filter(!is.na(Males)) %>%
-  filter(is.na(Unk) | (Unk < Males / 20))
+  print_nrow() %>%
+  filter(Year %in% first_year:last_year) %>%
+  print_nrow() %>%
+  filter(`Check?` == "Yes", Method == "Ground", Type %in% c("Count", "Survey")) %>%
+  print_nrow() %>%
+  filter(Dayte >= as.Date("1972-04-01"), Dayte <= as.Date("1972-05-07")) %>%
+  print_nrow() %>%
+  filter(is.na(Unk) | (Unk < Males / 20)) %>%
+  print_nrow()
 
 counts %<>% semi_join(leks, by = "Lek")
 leks %<>% semi_join(counts, by = "Lek")
