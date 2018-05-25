@@ -99,20 +99,20 @@ options(mb.parallel = FALSE)
 ref_data <- new_data(data) %>%
   mutate(Area = 0, PDO = 0)
 
-males <- new_data(data, "Males", ref = ref_data) %>%
+males <- new_data(data, "Males1", ref = ref_data) %>%
   predict(analysis, new_data = .)
 
-males %<>% mutate(estimate = (estimate - Males) / Males,
-                  lower = (lower - Males) / Males,
-                  upper = (upper - Males) / Males)
+males %<>% mutate(estimate = (estimate - Males1) / Males1,
+                  lower = (lower - Males1) / Males1,
+                  upper = (upper - Males1) / Males1)
 
-print(ggplot(data = males, aes(x = Males, y = estimate)) +
+print(ggplot(data = males, aes(x = Males1, y = estimate)) +
         geom_hline(yintercept = 0, linetype = "dashed") +
         geom_line() +
         geom_line(aes(y = lower), linetype = "dotted") +
         geom_line(aes(y = upper), linetype = "dotted") +
         scale_x_continuous("Density (males/lek)") +
-        scale_y_continuous("Effect on Subsequent Density (%)"))
+        scale_y_continuous("Effect on Subsequent Density (%)", labels = percent))
 
 ggsave("output/plots/density-group.png", width = 2.5, height = 2.5, dpi = dpi)
 
