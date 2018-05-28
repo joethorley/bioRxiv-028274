@@ -57,7 +57,7 @@ effect$Term %<>% str_replace("PDO Index", "PDO Index (B)")
 print(ggplot(data = effect, aes(x = Type, y = estimate)) +
         facet_wrap(~Term) +
         geom_pointrange(aes(ymin = lower, ymax = upper)) +
-        geom_hline(yintercept = 0, linetype = "dotted") +
+        geom_hline(yintercept = 0, linetype = "dashed") +
         scale_x_discrete("Statistical Method") +
         scale_y_continuous("Effect on Lek Count (%)", labels = percent) +
         expand_limits(y = c(0.33,-0.33)))
@@ -71,7 +71,7 @@ pdo <- new_data(data, "PDO", ref = ref_data) %>%
   predict(analysis, new_data = ., ref_data = ref_data)
 
 print(ggplot(data = pdo, aes(x = PDO, y = estimate)) +
-        geom_hline(yintercept = 0, linetype = "dotted") +
+        geom_hline(yintercept = 0, linetype = "dashed") +
         geom_line() +
         geom_line(aes(y = lower), linetype = "dotted") +
         geom_line(aes(y = upper), linetype = "dotted") +
@@ -85,7 +85,7 @@ area <- new_data(data, "Area", ref = ref_data) %>%
   predict(analysis, new_data = ., ref_data = ref_data)
 
 print(ggplot(data = area, aes(x = Area, y = estimate)) +
-        geom_hline(yintercept = 0, linetype = "dotted") +
+        geom_hline(yintercept = 0, linetype = "dashed") +
         geom_line() +
         geom_line(aes(y = lower), linetype = "dotted") +
         geom_line(aes(y = upper), linetype = "dotted") +
@@ -100,7 +100,7 @@ annual <- new_data(data, "Annual", ref = ref_data) %>%
   mutate(Year = as.integer(as.character(Annual)))
 
 print(ggplot(data = annual, aes(x = Year, y = estimate)) +
-        geom_hline(yintercept = 0, linetype = "dotted") +
+        geom_hline(yintercept = 0, linetype = "dased") +
         geom_pointrange(aes(ymin = lower, ymax = upper)) +
         scale_x_continuous("Year") +
         scale_y_continuous("Effect on Lek Count (%)", labels = percent) +

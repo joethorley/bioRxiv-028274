@@ -58,7 +58,7 @@ effect$Term %<>% str_replace("PDO Index", "PDO Index (B)")
 print(ggplot(data = effect, aes(x = Type, y = estimate)) +
         facet_wrap(~Term) +
         geom_pointrange(aes(ymin = lower, ymax = upper)) +
-        geom_hline(yintercept = 0, linetype = "dotted") +
+        geom_hline(yintercept = 0, linetype = "dashed") +
         scale_x_discrete("Statistical Method") +
         scale_y_continuous("Effect on Subsequent Density (%)", labels = percent) +
         expand_limits(y = c(0.33,-0.33)))
@@ -75,7 +75,7 @@ print(
   ggplot(data = data, aes(x = Year, y = Males)) +
     facet_wrap(~GroupABC) +
     geom_line(aes(y = fit)) +
-    geom_point() +
+    geom_point(size = 1) +
     scale_x_continuous("Year") +
     scale_y_continuous("Density (males/lek)", labels = comma) +
     expand_limits(y = 0)
@@ -149,7 +149,7 @@ annual <- new_data(data, "Annual", ref = ref_data) %>%
   mutate(Year = as.integer(as.character(Annual)))
 
 print(ggplot(data = annual, aes(x = Year, y = estimate)) +
-        geom_hline(yintercept = 0, linetype = "dotted") +
+        geom_hline(yintercept = 0, linetype = "dashed") +
         geom_pointrange(aes(ymin = lower, ymax = upper)) +
         scale_x_continuous("Year") +
         scale_y_continuous("Effect on Subsequent Density (%)", labels = percent) +
