@@ -74,7 +74,7 @@ effects$Year[str_detect(effects$Year, "1997")] %<>% paste("(B)")
 ggplot(data = effects, aes(x = Type, y = estimate)) +
   facet_grid(term ~ Year) +
   geom_pointrange(aes(ymin = lower, ymax = upper)) +
-  geom_hline(yintercept = 0, linetype = "dotted") +
+  geom_hline(yintercept = 0, linetype = "dashed") +
   scale_x_discrete("Statistic") +
   scale_y_continuous("Effect on Subsequent Density (%)", labels = percent) +
   expand_limits(y = 0)
