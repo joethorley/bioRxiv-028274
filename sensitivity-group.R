@@ -5,21 +5,30 @@ analyses <- readRDS("output/group/analyses_final.rds")
 
 data <- data_set(analyses[["full"]])
 
-data2 <- filter(data, Year >= 1997) %>%
+data97 <- filter(data, Year >= 1997) %>%
   mutate(Annual = droplevels(Annual))
 
-data3 <- mutate(data,
+data05 <- filter(data, Year >= 2005) %>%
+  mutate(Annual = droplevels(Annual))
+
+data2 <- mutate(data,
                 Males = MaxMales,
                 Males1 = MaxMales1)
 
-data4 <- mutate(data2,
+data972 <- mutate(data97,
+                Males = MaxMales,
+                Males1 = MaxMales1)
+
+data052 <- mutate(data05,
                 Males = MaxMales,
                 Males1 = MaxMales1)
 
 data <- list("1985 Mean" = data,
-             "1997 Mean" = data2,
-             "1985 Max" = data3,
-             "1997 Max" = data4)
+             "1997 Mean" = data97,
+             "2005 Mean" = data05,
+             "1985 Max" = data2,
+             "1997 Max" = data972,
+             "2005 Max" = data052)
 
 analyses <- analyse(model, data = data)
 
@@ -70,9 +79,10 @@ effects$Year %<>% paste("-", last_year)
 
 effects$Year[str_detect(effects$Year, "1985")] %<>% paste("(A)")
 effects$Year[str_detect(effects$Year, "1997")] %<>% paste("(B)")
+effects$Year[str_detect(effects$Year, "2005")] %<>% paste("(C)")
 
 ggplot(data = effects, aes(x = Type, y = estimate)) +
-  facet_grid(term ~ Year) +
+  facet_grid(term ~ Year, scales = "free_y") +
   geom_pointrange(aes(ymin = lower, ymax = upper)) +
   geom_hline(yintercept = 0, linetype = "dashed") +
   scale_x_discrete("Statistic") +

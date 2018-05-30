@@ -100,7 +100,7 @@ annual <- new_data(data, "Annual", ref = ref_data) %>%
   mutate(Year = as.integer(as.character(Annual)))
 
 print(ggplot(data = annual, aes(x = Year, y = estimate)) +
-        geom_hline(yintercept = 0, linetype = "dased") +
+        geom_hline(yintercept = 0, linetype = "dashed") +
         geom_pointrange(aes(ymin = lower, ymax = upper)) +
         scale_x_continuous("Year") +
         scale_y_continuous("Effect on Lek Count (%)", labels = percent) +
