@@ -21,6 +21,12 @@ ggplot(data = data, aes(x = Year, y = residual)) +
   facet_wrap(~Group) +
   geom_point()
 
+R2c <- R2(analyses[["full"]], response = "Males")
+R2m <- R2(analyses[["full"]], response = "Males", marginal = TRUE)
+
+saveRDS(R2c, "output/values/R2c_group.rds")
+saveRDS(R2m, "output/values/R2m_group.rds")
+
 coef_full <- coef(analyses[["full"]])
 print(coef_full)
 

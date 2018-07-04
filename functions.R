@@ -56,6 +56,10 @@ exp_minus1 <- function(x) exp(x) - 1
 add_ABC <- function(x) {
   if (!length(x)) return(x)
 
+  x %<>% as.character() %>%
+    str_replace("River", "R.") %>%
+    as.factor()
+
   letters <- letters[1:nlevels(x)] %>%
     toupper() %>%
     paste0("(", ., ")")

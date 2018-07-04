@@ -25,6 +25,12 @@ ggplot(data = data, aes(x = fit, y = residual)) +
   geom_point(alpha = 1/5) +
   expand_limits(y = 0)
 
+R2c <- R2(analyses[["full"]], response = "Males")
+R2m <- R2(analyses[["full"]], response = "Males", marginal = TRUE)
+
+saveRDS(R2c, "output/values/R2c_lek.rds")
+saveRDS(R2m, "output/values/R2m_lek.rds")
+
 coef_full <- coef(analyses[["full"]])
 print(coef_full)
 
